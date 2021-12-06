@@ -42,7 +42,8 @@ func TestUnpack(t *testing.T) {
 }
 
 func TestUnpackInvalidString(t *testing.T) {
-	invalidStrings := []string{"3abc", "45", "aaa10b",
+	invalidStrings := []string{
+		"3abc", "45", "aaa10b",
 		// extra tests
 		`b10`,
 		`8`,

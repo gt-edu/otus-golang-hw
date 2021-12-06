@@ -18,9 +18,7 @@ func Unpack(inp string) (string, error) {
 
 		switch {
 		case unicode.IsLetter(rune(c)):
-			if lastSymbol != 0 {
-				outBuilder.WriteByte(lastSymbol)
-			}
+			handleLastSymbol(lastSymbol, &outBuilder)
 			lastSymbol = c
 		case unicode.IsDigit(rune(c)):
 			if lastSymbol == 0 {
@@ -37,9 +35,8 @@ func Unpack(inp string) (string, error) {
 
 			lastSymbol = 0
 		case string(c) == `\`:
-			if lastSymbol != 0 {
-				outBuilder.WriteByte(lastSymbol)
-			}
+			handleLastSymbol(lastSymbol, &outBuilder)
+
 			pos++
 			if pos >= len(inp) {
 				return "", ErrInvalidString
@@ -53,9 +50,13 @@ func Unpack(inp string) (string, error) {
 		}
 	}
 
+	handleLastSymbol(lastSymbol, &outBuilder)
+
+	return outBuilder.String(), nil
+}
+
+func handleLastSymbol(lastSymbol byte, outBuilder *strings.Builder) {
 	if lastSymbol != 0 {
 		outBuilder.WriteByte(lastSymbol)
 	}
-
-	return outBuilder.String(), nil
 }
