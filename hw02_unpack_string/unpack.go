@@ -11,16 +11,17 @@ var ErrInvalidString = errors.New("invalid string")
 
 func Unpack(inp string) (string, error) {
 	outBuilder := strings.Builder{}
-	var lastSymbol byte
-	for pos := 0; pos < len(inp); pos++ {
-		c := inp[pos]
-		// fmt.Printf("character %c (%d) starts at byte position %d\n", c, c, pos)
+	var lastSymbol rune
+	runes := []rune(inp)
+
+	for pos := 0; pos < len(runes); pos++ {
+		c := runes[pos]
 
 		switch {
-		case unicode.IsLetter(rune(c)):
+		case unicode.IsLetter(c):
 			handleLastSymbol(lastSymbol, &outBuilder)
 			lastSymbol = c
-		case unicode.IsDigit(rune(c)):
+		case unicode.IsDigit(c):
 			if lastSymbol == 0 {
 				return "", ErrInvalidString
 			}
@@ -38,11 +39,11 @@ func Unpack(inp string) (string, error) {
 			handleLastSymbol(lastSymbol, &outBuilder)
 
 			pos++
-			if pos >= len(inp) {
+			if pos >= len(runes) {
 				return "", ErrInvalidString
 			}
-			lastSymbol = inp[pos]
-			if string(lastSymbol) != `\` && !unicode.IsDigit(rune(lastSymbol)) {
+			lastSymbol = runes[pos]
+			if string(lastSymbol) != `\` && !unicode.IsDigit(lastSymbol) {
 				return "", ErrInvalidString
 			}
 		default:
@@ -55,8 +56,8 @@ func Unpack(inp string) (string, error) {
 	return outBuilder.String(), nil
 }
 
-func handleLastSymbol(lastSymbol byte, outBuilder *strings.Builder) {
+func handleLastSymbol(lastSymbol rune, outBuilder *strings.Builder) {
 	if lastSymbol != 0 {
-		outBuilder.WriteByte(lastSymbol)
+		outBuilder.WriteRune(lastSymbol)
 	}
 }
