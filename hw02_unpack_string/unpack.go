@@ -18,9 +18,6 @@ func Unpack(inp string) (string, error) {
 		c := runes[pos]
 
 		switch {
-		case unicode.IsLetter(c):
-			handleLastSymbol(lastSymbol, &outBuilder)
-			lastSymbol = c
 		case unicode.IsDigit(c):
 			if lastSymbol == 0 {
 				return "", ErrInvalidString
@@ -47,7 +44,8 @@ func Unpack(inp string) (string, error) {
 				return "", ErrInvalidString
 			}
 		default:
-			return "", ErrInvalidString
+			handleLastSymbol(lastSymbol, &outBuilder)
+			lastSymbol = c
 		}
 	}
 
