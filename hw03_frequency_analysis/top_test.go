@@ -1,6 +1,7 @@
 package hw03frequencyanalysis
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -64,19 +65,37 @@ func TestTop10(t *testing.T) {
 			}
 			require.Equal(t, expected, Top10(text))
 		} else {
-			expected := []string{
-				"он",        // 8
-				"а",         // 6
-				"и",         // 6
-				"ты",        // 5
-				"что",       // 5
-				"-",         // 4
-				"Кристофер", // 4
-				"если",      // 4
-				"не",        // 4
-				"то",        // 4
+			tests := []struct {
+				input    string
+				expected []string
+			}{
+				{input: text, expected: []string{
+					"он",        // 8
+					"а",         // 6
+					"и",         // 6
+					"ты",        // 5
+					"что",       // 5
+					"-",         // 4
+					"Кристофер", // 4
+					"если",      // 4
+					"не",        // 4
+					"то",        // 4
+				}},
+				{input: "н о п р б б к к к я я а а д ж з и л м", expected: []string{
+					"к", "а", "б", "я", "д", "ж", "з", "и", "л", "м",
+				}},
+				{input: "н\nо п р б б к \tк к я\tя а а \t д ж з и л \n м\n", expected: []string{
+					"к", "а", "б", "я", "д", "ж", "з", "и", "л", "м",
+				}},
+				{input: "б в\nа А Б г Г Г", expected: []string{
+					"Г", "А", "Б", "а", "б", "в", "г",
+				}},
 			}
-			require.Equal(t, expected, Top10(text))
+			for _, tc := range tests {
+				t.Run(fmt.Sprintf("%.50s", tc.input), func(t *testing.T) {
+					require.Equal(t, tc.expected, Top10(tc.input))
+				})
+			}
 		}
 	})
 }
