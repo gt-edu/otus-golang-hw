@@ -6,9 +6,18 @@ import (
 	"strings"
 )
 
+const MaxSize = 10
+
 type FrequencyStringSlice struct {
 	sort.StringSlice
 	uniqWordsCount map[string]int
+}
+
+func NewFrequencyStringSlice() *FrequencyStringSlice {
+	return &FrequencyStringSlice{
+		StringSlice:    make([]string, 0),
+		uniqWordsCount: make(map[string]int),
+	}
 }
 
 func (x FrequencyStringSlice) Less(i, j int) bool {
@@ -32,11 +41,17 @@ func (x *FrequencyStringSlice) IncreaseWordCount(word string) {
 	x.uniqWordsCount[word]++
 }
 
-func NewFrequencyStringSlice() *FrequencyStringSlice {
-	return &FrequencyStringSlice{
-		StringSlice:    make([]string, 0),
-		uniqWordsCount: make(map[string]int),
+func (x *FrequencyStringSlice) HandleWord(w string) {
+	if len(w) == 0 {
+		return
 	}
+
+	ok := x.StringExists(w)
+	if !ok {
+		x.AddWord(w)
+	}
+
+	x.IncreaseWordCount(w)
 }
 
 func Top10(inp string) []string {
@@ -47,15 +62,7 @@ func Top10(inp string) []string {
 	freqStrSl := NewFrequencyStringSlice()
 	words := strings.Fields(inp)
 	for _, w := range words {
-		ok := freqStrSl.StringExists(w)
-		if !ok {
-			if len(w) == 0 {
-				continue
-			}
-			freqStrSl.AddWord(w)
-		}
-
-		freqStrSl.IncreaseWordCount(w)
+		freqStrSl.HandleWord(w)
 	}
 
 	sort.Sort(freqStrSl)
@@ -64,12 +71,12 @@ func Top10(inp string) []string {
 		return nil
 	}
 
-	min := 10
-	if freqStrSl.Len() < 10 {
-		min = freqStrSl.Len()
+	max := MaxSize
+	if freqStrSl.Len() < max {
+		max = freqStrSl.Len()
 	}
 
-	return freqStrSl.StringSlice[:min]
+	return freqStrSl.StringSlice[:max]
 }
 
 func PrintSliceValues(checkSlice []string, countMap map[string]int) {
