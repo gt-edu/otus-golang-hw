@@ -2,6 +2,7 @@ package hw03frequencyanalysis
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -11,12 +12,15 @@ const MaxSize = 10
 type FrequencyStringSlice struct {
 	sort.StringSlice
 	uniqWordsCount map[string]int
+	punctRegex     *regexp.Regexp
 }
 
 func NewFrequencyStringSlice() *FrequencyStringSlice {
+	re := regexp.MustCompile(`\p{P}`)
 	return &FrequencyStringSlice{
-		StringSlice:    make([]string, 0),
+		StringSlice:    make([]string, 0, 10),
 		uniqWordsCount: make(map[string]int),
+		punctRegex:     re,
 	}
 }
 
@@ -41,10 +45,27 @@ func (x *FrequencyStringSlice) IncreaseWordCount(word string) {
 	x.uniqWordsCount[word]++
 }
 
+func (x *FrequencyStringSlice) ReplacePunctuation(w string) string {
+	w = x.punctRegex.ReplaceAllString(w, "")
+	return w
+}
+
 func (x *FrequencyStringSlice) HandleWord(w string) {
 	if len(w) == 0 {
 		return
 	}
+
+	if w == "-" {
+		return
+	}
+
+	w = x.ReplacePunctuation(w)
+
+	if len(w) == 0 {
+		return
+	}
+
+	w = strings.ToLower(w)
 
 	ok := x.StringExists(w)
 	if !ok {
