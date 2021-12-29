@@ -1,13 +1,14 @@
 package hw03frequencyanalysis
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 // Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -50,33 +51,85 @@ func TestTop10(t *testing.T) {
 
 	t.Run("positive test", func(t *testing.T) {
 		if taskWithAsteriskIsCompleted {
-			expected := []string{
-				"а",         // 8
-				"он",        // 8
-				"и",         // 6
-				"ты",        // 5
-				"что",       // 5
-				"в",         // 4
-				"его",       // 4
-				"если",      // 4
-				"кристофер", // 4
-				"не",        // 4
+			tests := []struct {
+				input    string
+				expected []string
+			}{
+				{input: text, expected: []string{
+					"а",         // 8
+					"он",        // 8
+					"и",         // 6
+					"ты",        // 5
+					"что",       // 5
+					"в",         // 4
+					"его",       // 4
+					"если",      // 4
+					"кристофер", // 4
+					"не",        // 4
+				}},
+				{input: "б в\nа А Б г Г Г В в В", expected: []string{
+					"в", "г", "а", "б",
+				}},
+				{input: "b c\na A, ! B ,g G. !G !@#&();%:?*{}[]?/\\", expected: []string{
+					"g", "a", "b", "c",
+				}},
+				{input: "b c\na A, ! B ,g G. !G ! @ # & ( ) ; % :  ? * { } [ ] / \\", expected: []string{
+					"g", "a", "b", "c",
+				}},
 			}
-			require.Equal(t, expected, Top10(text))
+			runTests(t, tests)
 		} else {
-			expected := []string{
-				"он",        // 8
-				"а",         // 6
-				"и",         // 6
-				"ты",        // 5
-				"что",       // 5
-				"-",         // 4
-				"Кристофер", // 4
-				"если",      // 4
-				"не",        // 4
-				"то",        // 4
+			tests := []struct {
+				input    string
+				expected []string
+			}{
+				{input: text, expected: []string{
+					"он",        // 8
+					"а",         // 6
+					"и",         // 6
+					"ты",        // 5
+					"что",       // 5
+					"-",         // 4
+					"Кристофер", // 4
+					"если",      // 4
+					"не",        // 4
+					"то",        // 4
+				}},
+				{input: "б в\nа А Б г Г Г", expected: []string{
+					"Г", "А", "Б", "а", "б", "в", "г",
+				}},
+				{input: "b c\na A B g G G", expected: []string{
+					"G", "A", "B", "a", "b", "c", "g",
+				}},
 			}
-			require.Equal(t, expected, Top10(text))
+			runTests(t, tests)
 		}
 	})
+
+	t.Run("lowercase insensitive tests", func(t *testing.T) {
+		tests := []struct {
+			input    string
+			expected []string
+		}{
+			{input: "н о п р б б к к к я я а а д ж з и л м", expected: []string{
+				"к", "а", "б", "я", "д", "ж", "з", "и", "л", "м",
+			}},
+			{input: "н\nо п р б б к \tк к я\tя а а \t д ж з и л \n м\n", expected: []string{
+				"к", "а", "б", "я", "д", "ж", "з", "и", "л", "м",
+			}},
+		}
+		runTests(t, tests)
+	})
+}
+
+func runTests(t *testing.T, tests []struct {
+	input    string
+	expected []string
+}) {
+	t.Helper()
+	for _, tc := range tests {
+		t.Run(fmt.Sprintf("%.50s", tc.input), func(t *testing.T) {
+			require.Equal(t, tc.expected, Top10(tc.input))
+		})
+	}
 }
