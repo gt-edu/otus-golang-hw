@@ -50,19 +50,15 @@ func (l *list) PushFront(v interface{}) *ListItem {
 }
 
 func (l *list) pushItemToFront(newFront *ListItem) {
+	newFront.Prev = nil
+
 	if l.front != nil {
 		l.front.Prev = newFront
 		newFront.Next = l.front
-	} else if l.back != nil {
-		l.back.Prev = newFront
-		newFront.Next = l.back
+	} else {
+		// First element
+		l.back = newFront
 	}
-
-	if l.len == 1 && l.back == nil {
-		l.back = l.front
-	}
-
-	newFront.Prev = nil
 
 	l.front = newFront
 
@@ -77,17 +73,12 @@ func (l *list) PushBack(v interface{}) *ListItem {
 	if l.back != nil {
 		l.back.Next = newBack
 		newBack.Prev = l.back
-	} else if l.front != nil {
-		l.front.Next = newBack
-		newBack.Prev = l.front
-	}
-
-	if l.len == 1 && l.front == nil {
-		l.front = l.back
+	} else {
+		// First element
+		l.front = newBack
 	}
 
 	l.back = newBack
-
 	l.len++
 
 	return newBack

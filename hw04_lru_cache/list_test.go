@@ -53,11 +53,11 @@ func TestList(t *testing.T) {
 func TestListFuncs(t *testing.T) {
 	t.Run("PushFront", func(t *testing.T) {
 		l := NewList()
-		l.PushFront(1)
-		require.Equal(t, 1, l.Front().Value)
+		l.PushFront(3)
+		require.Equal(t, 3, l.Front().Value)
 		require.Nil(t, l.Front().Prev)
 		require.Nil(t, l.Front().Next)
-		require.Nil(t, l.Back())
+		require.NotNil(t, l.Back())
 
 		l.PushFront(2)
 		require.Equal(t, 2, l.Front().Value)
@@ -65,6 +65,9 @@ func TestListFuncs(t *testing.T) {
 		require.NotNil(t, l.Front().Next)
 		require.NotNil(t, l.Back())
 		require.Equal(t, l.Front().Next, l.Back())
+
+		l.PushFront(1)
+		require.Equal(t, []int{1, 2, 3}, ListToIntArray(l))
 
 		l = NewList()
 		l.PushBack(3)
@@ -87,7 +90,7 @@ func TestListFuncs(t *testing.T) {
 		require.Equal(t, 1, l.Len())
 		require.Nil(t, l.Back().Prev)
 		require.Nil(t, l.Back().Next)
-		require.Nil(t, l.Front())
+		require.NotNil(t, l.Front())
 
 		l.PushBack(2)
 		require.Equal(t, 2, l.Back().Value)
@@ -102,6 +105,8 @@ func TestListFuncs(t *testing.T) {
 		require.NotNil(t, l.Back().Prev)
 		require.Nil(t, l.Back().Next)
 		require.NotNil(t, l.Front())
+
+		require.Equal(t, []int{1, 2, 3}, ListToIntArray(l))
 
 		l = NewList()
 		l.PushFront(1)
