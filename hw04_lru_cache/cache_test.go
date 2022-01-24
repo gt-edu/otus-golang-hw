@@ -157,5 +157,11 @@ func TestCustomCache(t *testing.T) {
 		v, ok = c.Get("test2")
 		require.False(t, ok)
 		require.Nil(t, v)
+
+		c.Set("test1", 1)
+
+		v, ok = c.Get("test1")
+		require.True(t, ok)
+		require.Equal(t, 1, v)
 	})
 }

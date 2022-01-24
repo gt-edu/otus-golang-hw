@@ -71,7 +71,7 @@ func (c *lruCache) Clear() {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	c.items = nil
+	c.items = makeNewItemsMap(c.capacity)
 	c.queue.(*list).Clear()
 }
 
@@ -79,6 +79,10 @@ func NewCache(capacity int) Cache {
 	return &lruCache{
 		capacity: capacity,
 		queue:    NewList(),
-		items:    make(map[Key]*ListItem, capacity),
+		items:    makeNewItemsMap(capacity),
 	}
+}
+
+func makeNewItemsMap(capacity int) map[Key]*ListItem {
+	return make(map[Key]*ListItem, capacity)
 }
