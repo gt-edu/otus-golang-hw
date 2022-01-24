@@ -53,7 +53,8 @@ func TestList(t *testing.T) {
 func TestListFuncs(t *testing.T) {
 	t.Run("PushFront", func(t *testing.T) {
 		l := NewList()
-		l.PushFront(3)
+		newFront := l.PushFront(3)
+		require.Equal(t, newFront, l.Front())
 		require.Equal(t, 3, l.Front().Value)
 		require.Nil(t, l.Front().Prev)
 		require.Nil(t, l.Front().Next)
@@ -85,7 +86,8 @@ func TestListFuncs(t *testing.T) {
 	})
 	t.Run("PushBack", func(t *testing.T) {
 		l := NewList()
-		l.PushBack(1)
+		newBack := l.PushBack(1)
+		require.Equal(t, newBack, l.Back())
 		require.Equal(t, 1, l.Back().Value)
 		require.Equal(t, 1, l.Len())
 		require.Nil(t, l.Back().Prev)

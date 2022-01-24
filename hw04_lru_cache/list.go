@@ -116,6 +116,12 @@ func (l *list) String() string {
 	return sb.String()
 }
 
+func (l *list) Clear() {
+	l.front = nil
+	l.back = nil
+	l.len = 0
+}
+
 func ListToIntArray(l List) []int {
 	arr := make([]int, 0, l.Len())
 	for curr := l.Front(); curr != nil; curr = curr.Next {
