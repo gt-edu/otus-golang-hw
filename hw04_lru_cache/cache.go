@@ -27,7 +27,7 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 		c.queue.Remove(listItem)
 
 		// Q: Почему не могу так сделать
-		//listItem.Value.(cacheItem).value = value
+		// listItem.Value.(cacheItem).value = value
 
 		cItem.value = value
 	} else {
