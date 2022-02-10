@@ -53,7 +53,7 @@ func Run(tasks []Task, n, m int) RunResult {
 	return res
 }
 
-func worker(wg *sync.WaitGroup, tasksCh chan Task, m int, errChBuffered chan int32, result *RunResult) {
+func worker(wg *sync.WaitGroup, tasksCh chan Task, maxErrors int, errChBuffered chan int32, result *RunResult) {
 	defer wg.Done()
 
 	once := sync.Once{}
@@ -66,14 +66,14 @@ func worker(wg *sync.WaitGroup, tasksCh chan Task, m int, errChBuffered chan int
 			atomic.AddInt32(&result.executedWorkersCount, 1)
 		})
 
-		if m > 0 && atomic.LoadInt32(&result.errCount) >= int32(m) {
+		if maxErrors > 0 && atomic.LoadInt32(&result.errCount) >= int32(maxErrors) {
 			return
 		}
 
 		err := task()
-		if m > 0 && err != nil {
-			if currErr := atomic.AddInt32(&result.errCount, 1); currErr == int32(m) {
-				errChBuffered <- currErr
+		if maxErrors > 0 && err != nil {
+			if currErrCount := atomic.AddInt32(&result.errCount, 1); currErrCount == int32(maxErrors) {
+				errChBuffered <- currErrCount
 				close(errChBuffered)
 			}
 		}
