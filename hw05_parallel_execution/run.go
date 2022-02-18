@@ -18,16 +18,16 @@ type RunResult struct {
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n, m int) RunResult {
-	errChBuffered := make(chan int32, 1)
+	errBufCh := make(chan int32, 1)
 	completeCh := make(chan struct{})
-	tasksChBuffered := make(chan Task, len(tasks))
+	tasksBufCh := make(chan Task, len(tasks))
 
 	res := RunResult{}
 
 	wg := sync.WaitGroup{}
 	for i := 0; i < n; i++ {
 		wg.Add(1)
-		go worker(&wg, tasksChBuffered, m, errChBuffered, &res)
+		go worker(&wg, tasksBufCh, m, errBufCh, &res)
 	}
 
 	go func() {
@@ -37,15 +37,15 @@ func Run(tasks []Task, n, m int) RunResult {
 	}()
 
 	for _, t := range tasks {
-		tasksChBuffered <- t
+		tasksBufCh <- t
 	}
-	close(tasksChBuffered)
+	close(tasksBufCh)
 
 	<-completeCh
 
 	var retErr error
 	select {
-	case <-errChBuffered:
+	case <-errBufCh:
 		retErr = ErrErrorsLimitExceeded
 	default:
 	}
@@ -53,7 +53,7 @@ func Run(tasks []Task, n, m int) RunResult {
 	return res
 }
 
-func worker(wg *sync.WaitGroup, tasksCh chan Task, maxErrors int, errChBuffered chan int32, result *RunResult) {
+func worker(wg *sync.WaitGroup, tasksCh chan Task, maxErrors int, errBufCh chan int32, result *RunResult) {
 	defer wg.Done()
 
 	once := sync.Once{}
@@ -73,8 +73,8 @@ func worker(wg *sync.WaitGroup, tasksCh chan Task, maxErrors int, errChBuffered 
 		err := task()
 		if maxErrors > 0 && err != nil {
 			if currErrCount := atomic.AddInt32(&result.errCount, 1); currErrCount == int32(maxErrors) {
-				errChBuffered <- currErrCount
-				close(errChBuffered)
+				errBufCh <- currErrCount
+				close(errBufCh)
 			}
 		}
 	}
