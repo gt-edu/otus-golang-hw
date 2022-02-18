@@ -14,10 +14,16 @@ type Task func() error
 func Run(tasks []Task, n, m int) error {
 	errBufCh := make(chan int32, 1)
 	completeCh := make(chan struct{})
-	tasksBufCh := make(chan Task, len(tasks))
+	tasksCount := len(tasks)
+	tasksBufCh := make(chan Task, tasksCount)
 
 	var wg sync.WaitGroup
 	var errCount int32
+
+	workersCount := n
+	if workersCount > tasksCount {
+		workersCount = tasksCount
+	}
 	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go worker(&wg, tasksBufCh, m, errBufCh, &errCount)

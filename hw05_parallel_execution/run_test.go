@@ -111,11 +111,19 @@ func TestRunZeroErrorsOrLimitIsHigh(t *testing.T) {
 		{tasksCount: 50, workersCount: 50, maxErrorsCount: 0},
 		{tasksCount: 50, workersCount: 60, maxErrorsCount: 0},
 		{tasksCount: 50, workersCount: 4, maxErrorsCount: 0},
+		{tasksCount: 50, workersCount: 5, maxErrorsCount: 0},
+		{tasksCount: 10, workersCount: 20, maxErrorsCount: 0},
+		{tasksCount: 10, workersCount: 10, maxErrorsCount: 0},
+		{tasksCount: 10, workersCount: 9, maxErrorsCount: 0},
 		{tasksCount: 50, workersCount: 4, maxErrorsCount: 26},
 		{tasksCount: 50, workersCount: 4, maxErrorsCount: 30},
 		{tasksCount: 50, workersCount: 4, maxErrorsCount: 35},
 		{tasksCount: 50, workersCount: 4, maxErrorsCount: 50},
 		{tasksCount: 50, workersCount: 4, maxErrorsCount: 60},
+		{tasksCount: 50, workersCount: 5, maxErrorsCount: 60},
+		{tasksCount: 10, workersCount: 20, maxErrorsCount: 60},
+		{tasksCount: 10, workersCount: 10, maxErrorsCount: 60},
+		{tasksCount: 10, workersCount: 9, maxErrorsCount: 60},
 	}
 
 	for _, tt := range tests {
@@ -142,6 +150,9 @@ func TestRunTasksNoErrors(t *testing.T) {
 		maxErrorsCount int
 	}{
 		{tasksCount: 50, workersCount: 5, maxErrorsCount: 1},
+		{tasksCount: 10, workersCount: 20, maxErrorsCount: 1},
+		{tasksCount: 10, workersCount: 10, maxErrorsCount: 1},
+		{tasksCount: 10, workersCount: 9, maxErrorsCount: 1},
 	}
 
 	for _, tt := range tests {
