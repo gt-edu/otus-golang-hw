@@ -13,7 +13,6 @@ type Task func() error
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n, m int) error {
 	errBufCh := make(chan int32, 1)
-	completeCh := make(chan struct{})
 	tasksCount := len(tasks)
 	tasksBufCh := make(chan Task, tasksCount)
 
@@ -29,18 +28,12 @@ func Run(tasks []Task, n, m int) error {
 		go worker(&wg, tasksBufCh, m, errBufCh, &errCount)
 	}
 
-	go func() {
-		wg.Wait()
-		completeCh <- struct{}{}
-		close(completeCh)
-	}()
-
 	for _, t := range tasks {
 		tasksBufCh <- t
 	}
 	close(tasksBufCh)
 
-	<-completeCh
+	wg.Wait()
 
 	var retErr error
 	select {
