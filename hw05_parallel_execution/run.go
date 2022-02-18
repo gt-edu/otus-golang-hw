@@ -23,7 +23,7 @@ func Run(tasks []Task, n, m int) error {
 	if workersCount > tasksCount {
 		workersCount = tasksCount
 	}
-	for i := 0; i < n; i++ {
+	for i := 0; i < workersCount; i++ {
 		wg.Add(1)
 		go worker(&wg, tasksBufCh, m, errBufCh, &errCount)
 	}

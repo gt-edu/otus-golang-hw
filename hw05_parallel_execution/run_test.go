@@ -89,7 +89,7 @@ func TestRunWithMixedCountErrorsMoreThanM(t *testing.T) {
 			workersCount := ttp.workersCount
 			maxErrorsCount := ttp.maxErrorsCount
 
-			tasks, ptrRunTasksCount := makeTestTasks_halfWithErrors(tasksCount)
+			tasks, ptrRunTasksCount := makeTestTasksHalfWithErrors(tasksCount)
 
 			err := Run(tasks, workersCount, maxErrorsCount)
 
@@ -133,7 +133,7 @@ func TestRunZeroErrorsOrLimitIsHigh(t *testing.T) {
 			tasksCount := ttp.tasksCount
 			workersCount := ttp.workersCount
 			maxErrorsCount := ttp.maxErrorsCount
-			tasks, ptrRunTasksCount := makeTestTasks_halfWithErrors(tasksCount)
+			tasks, ptrRunTasksCount := makeTestTasksHalfWithErrors(tasksCount)
 
 			err := Run(tasks, workersCount, maxErrorsCount)
 
@@ -162,7 +162,7 @@ func TestRunTasksNoErrors(t *testing.T) {
 			tasksCount := ttp.tasksCount
 			workersCount := ttp.workersCount
 			maxErrorsCount := ttp.maxErrorsCount
-			tasks, ptrRunTasksCount := makeTestTasks_noErrors(tasksCount)
+			tasks, ptrRunTasksCount := makeTestTasksNoErrors(tasksCount)
 
 			err := Run(tasks, workersCount, maxErrorsCount)
 
@@ -172,7 +172,7 @@ func TestRunTasksNoErrors(t *testing.T) {
 	}
 }
 
-func makeTestTasks_halfWithErrors(tasksCount int) ([]Task, *int32) {
+func makeTestTasksHalfWithErrors(tasksCount int) ([]Task, *int32) {
 	tasks := make([]Task, 0, tasksCount)
 	var runTasksCount int32
 
@@ -194,7 +194,7 @@ func makeTestTasks_halfWithErrors(tasksCount int) ([]Task, *int32) {
 	return tasks, &runTasksCount
 }
 
-func makeTestTasks_noErrors(tasksCount int) ([]Task, *int32) {
+func makeTestTasksNoErrors(tasksCount int) ([]Task, *int32) {
 	tasks := make([]Task, 0, tasksCount)
 	var runTasksCount int32
 
