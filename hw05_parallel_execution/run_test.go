@@ -32,9 +32,9 @@ func TestRun(t *testing.T) {
 
 		workersCount := 10
 		maxErrorsCount := 23
-		res := Run(tasks, workersCount, maxErrorsCount)
+		err := Run(tasks, workersCount, maxErrorsCount)
 
-		require.Truef(t, errors.Is(res.err, ErrErrorsLimitExceeded), "actual err - %v", res.err)
+		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
 		require.LessOrEqual(t, runTasksCount, int32(workersCount+maxErrorsCount), "extra tasks were started")
 	})
 
@@ -60,9 +60,9 @@ func TestRun(t *testing.T) {
 		maxErrorsCount := 1
 
 		start := time.Now()
-		res := Run(tasks, workersCount, maxErrorsCount)
+		err := Run(tasks, workersCount, maxErrorsCount)
 		elapsedTime := time.Since(start)
-		require.NoError(t, res.err)
+		require.NoError(t, err)
 
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
@@ -89,14 +89,13 @@ func TestRunWithMixedCountErrorsMoreThanM(t *testing.T) {
 			workersCount := ttp.workersCount
 			maxErrorsCount := ttp.maxErrorsCount
 
-			tasks, ptrRunTasksCount := makeTestTasks(tasksCount)
+			tasks, ptrRunTasksCount := makeTestTasks_halfWithErrors(tasksCount)
 
-			res := Run(tasks, workersCount, maxErrorsCount)
+			err := Run(tasks, workersCount, maxErrorsCount)
 
-			require.Truef(t, errors.Is(res.err, ErrErrorsLimitExceeded), "actual err - %v", res.err)
+			require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
 			require.LessOrEqual(t, int32(maxErrorsCount), *ptrRunTasksCount)
 			require.LessOrEqual(t, *ptrRunTasksCount, int32(workersCount+maxErrorsCount), "extra tasks were started")
-			require.LessOrEqual(t, res.executedWorkersCount, int32(workersCount))
 		})
 	}
 }
@@ -126,18 +125,43 @@ func TestRunZeroErrorsOrLimitIsHigh(t *testing.T) {
 			tasksCount := ttp.tasksCount
 			workersCount := ttp.workersCount
 			maxErrorsCount := ttp.maxErrorsCount
-			tasks, ptrRunTasksCount := makeTestTasks(tasksCount)
+			tasks, ptrRunTasksCount := makeTestTasks_halfWithErrors(tasksCount)
 
-			res := Run(tasks, workersCount, maxErrorsCount)
+			err := Run(tasks, workersCount, maxErrorsCount)
 
-			require.NoError(t, res.err)
+			require.NoError(t, err)
 			require.Equal(t, int32(tasksCount), *ptrRunTasksCount)
-			require.LessOrEqual(t, res.executedWorkersCount, int32(workersCount))
 		})
 	}
 }
 
-func makeTestTasks(tasksCount int) ([]Task, *int32) {
+func TestRunTasksNoErrors(t *testing.T) {
+	tests := []struct {
+		tasksCount     int
+		workersCount   int
+		maxErrorsCount int
+	}{
+		{tasksCount: 50, workersCount: 5, maxErrorsCount: 1},
+	}
+
+	for _, tt := range tests {
+		ttp := tt
+		t.Run(fmt.Sprintf("mixed tasks %d %d %d", ttp.tasksCount, ttp.workersCount, ttp.maxErrorsCount), func(t *testing.T) {
+			t.Parallel()
+			tasksCount := ttp.tasksCount
+			workersCount := ttp.workersCount
+			maxErrorsCount := ttp.maxErrorsCount
+			tasks, ptrRunTasksCount := makeTestTasks_noErrors(tasksCount)
+
+			err := Run(tasks, workersCount, maxErrorsCount)
+
+			require.NoError(t, err)
+			require.Equal(t, int32(tasksCount), *ptrRunTasksCount)
+		})
+	}
+}
+
+func makeTestTasks_halfWithErrors(tasksCount int) ([]Task, *int32) {
 	tasks := make([]Task, 0, tasksCount)
 	var runTasksCount int32
 
@@ -152,6 +176,20 @@ func makeTestTasks(tasksCount int) ([]Task, *int32) {
 	for ; i < tasksCount; i++ {
 		tasks = append(tasks, func() error {
 			time.Sleep(time.Millisecond * time.Duration(rand.Intn(20)))
+			atomic.AddInt32(&runTasksCount, 1)
+			return nil
+		})
+	}
+	return tasks, &runTasksCount
+}
+
+func makeTestTasks_noErrors(tasksCount int) ([]Task, *int32) {
+	tasks := make([]Task, 0, tasksCount)
+	var runTasksCount int32
+
+	i := 0
+	for ; i < tasksCount; i++ {
+		tasks = append(tasks, func() error {
 			atomic.AddInt32(&runTasksCount, 1)
 			return nil
 		})
