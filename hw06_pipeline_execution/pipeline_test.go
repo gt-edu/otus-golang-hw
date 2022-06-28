@@ -92,7 +92,6 @@ func TestPipeline(t *testing.T) {
 	})
 
 	t.Run("empty stages list", func(t *testing.T) {
-
 		tests := []struct {
 			name     string
 			data     []int
