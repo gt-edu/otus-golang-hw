@@ -90,4 +90,37 @@ func TestPipeline(t *testing.T) {
 		require.Len(t, result, 0)
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
+
+	t.Run("empty stages list", func(t *testing.T) {
+
+		tests := []struct {
+			name     string
+			data     []int
+			expected []int
+		}{
+			{name: "empty input data", data: []int{}, expected: []int{}},
+			{name: "not empty input data", data: []int{1, 2, 3, 4, 5}, expected: []int{1, 2, 3, 4, 5}},
+		}
+		stages := []Stage{}
+
+		for _, tc := range tests {
+			tc := tc
+			t.Run(tc.name, func(t *testing.T) {
+				in := make(Bi)
+				go func() {
+					for _, v := range tc.data {
+						in <- v
+					}
+					close(in)
+				}()
+
+				result := make([]int, 0, 10)
+				for s := range ExecutePipeline(in, nil, stages...) {
+					result = append(result, s.(int))
+				}
+
+				require.Equal(t, tc.expected, result)
+			})
+		}
+	})
 }
