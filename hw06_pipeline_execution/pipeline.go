@@ -25,7 +25,8 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 		newData = append(newData, nil)
 		newDataMutex.Unlock()
 
-		// Не уверен, что верное решение, что нужно пересоздавать канал для одного элемента
+		// Не уверен, что верное решение, что нужно пересоздавать канал для одного элемента, но пока не могу понять как
+		// внедрить done канал, который может быть перехвачен select для каждого значения и стеёджа
 		singleValueCh := make(Bi)
 
 		wg.Add(1)
@@ -38,7 +39,8 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 					atomic.AddInt32(&doneReceived, 1)
 					return
 				case v := <-singleValueCh:
-					// Не уверен, что верное решение, что нужно пересоздавать канал для одного элемента
+					// Не уверен, что верное решение, что нужно пересоздавать канал для одного элемента, но пока не могу понять как
+					// внедрить done канал, который может быть перехвачен select для каждого значения и стеёджа
 					newSingleValueCh := make(Bi)
 					singleValueCh = s(newSingleValueCh)
 
