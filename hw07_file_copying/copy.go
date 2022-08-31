@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/cheggaaa/pb/v3"
 )
@@ -16,7 +17,7 @@ var (
 )
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
-	fromFile, fromFileSize, err := validateParams(fromPath, offset, limit)
+	fromFile, fromFileSize, err := validateParams(fromPath, toPath, offset, limit)
 	if err != nil {
 		return err
 	}
@@ -28,15 +29,13 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		}
 	}
 
-	copyUntilEnd := limit == 0 || (offset+limit) > fromFileSize
-
-	bar, barReader := setupProgressBar(fromFile, fromFileSize, copyUntilEnd, offset, limit)
-
 	toFile, err := os.Create(toPath)
 	if err != nil {
 		return err
 	}
 
+	copyUntilEnd := limit == 0 || (offset+limit) > fromFileSize
+	bar, barReader := setupProgressBar(fromFile, fromFileSize, copyUntilEnd, offset, limit)
 	if copyUntilEnd {
 		_, err = io.Copy(toFile, barReader)
 	} else {
@@ -65,9 +64,13 @@ func setupProgressBar(
 	return bar, barReader
 }
 
-func validateParams(fromPath string, offset int64, limit int64) (*os.File, int64, error) {
+func validateParams(fromPath, toPath string, offset, limit int64) (*os.File, int64, error) {
 	if offset < 0 || limit < 0 {
 		return nil, 0, ErrOffsetAndLimitShouldBePositive
+	}
+
+	if strings.Index(fromPath, "/dev/") == 0 || strings.Index(toPath, "/dev/") == 0 {
+		return nil, 0, ErrUnsupportedFile
 	}
 
 	fromFile, err := os.Open(fromPath)

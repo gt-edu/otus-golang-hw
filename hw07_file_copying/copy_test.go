@@ -37,8 +37,10 @@ func TestCopy(t *testing.T) {
 	})
 
 	t.Run("validate unsupported file", func(t *testing.T) {
-		t.Skip()
-		err = Copy("/dev/urandom", to, 0, 0)
+		err = Copy("/dev/random", toFilePath, 0, 0)
+		require.EqualError(t, err, ErrUnsupportedFile.Error())
+
+		err = Copy(fromFile.Name(), "/dev/random", 0, 0)
 		require.EqualError(t, err, ErrUnsupportedFile.Error())
 	})
 
