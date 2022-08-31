@@ -2,9 +2,10 @@ package main
 
 import (
 	"errors"
-	"github.com/cheggaaa/pb/v3"
 	"io"
 	"os"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 var (
@@ -42,7 +43,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		_, err = io.CopyN(toFile, barReader, limit)
 	}
 
-	if err != nil && err != io.EOF {
+	if err != nil && errors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -50,10 +51,12 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	return nil
 }
 
-func setupProgressBar(fromFile *os.File, fromFileSize int64, copyUntilEnd bool, offset int64, limit int64) (*pb.ProgressBar, *pb.Reader) {
+func setupProgressBar(
+	fromFile *os.File, fromFileSize int64, copyUntilEnd bool, offset int64, limit int64,
+) (*pb.ProgressBar, *pb.Reader) {
 	pbCount := fromFileSize
 	if copyUntilEnd {
-		pbCount = pbCount - offset
+		pbCount -= offset
 	} else {
 		pbCount = limit
 	}
