@@ -2,9 +2,9 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/cheggaaa/pb/v3"
 )
@@ -17,10 +17,16 @@ var (
 )
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
-	fromFile, fromFileSize, err := validateParams(fromPath, toPath, offset, limit)
+	fromFileSize, err := validateParams(fromPath, toPath, offset, limit)
 	if err != nil {
 		return err
 	}
+
+	fromFile, err := os.Open(fromPath)
+	if err != nil {
+		return err
+	}
+	defer closeResource(fromFile)
 
 	if offset > 0 {
 		_, err := fromFile.Seek(offset, io.SeekStart)
@@ -33,6 +39,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	if err != nil {
 		return err
 	}
+	defer closeResource(toFile)
 
 	copyUntilEnd := limit == 0 || (offset+limit) > fromFileSize
 	bar, barReader := setupProgressBar(fromFile, fromFileSize, copyUntilEnd, offset, limit)
@@ -50,6 +57,12 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	return nil
 }
 
+func closeResource(closer io.Closer) {
+	if err := closer.Close(); err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "Error during closing file: %v\n", err)
+	}
+}
+
 func setupProgressBar(
 	fromFile *os.File, fromFileSize int64, copyUntilEnd bool, offset int64, limit int64,
 ) (*pb.ProgressBar, *pb.Reader) {
@@ -64,28 +77,33 @@ func setupProgressBar(
 	return bar, barReader
 }
 
-func validateParams(fromPath, toPath string, offset, limit int64) (*os.File, int64, error) {
+func validateParams(fromPath, toPath string, offset, limit int64) (int64, error) {
 	if offset < 0 || limit < 0 {
-		return nil, 0, ErrOffsetAndLimitShouldBePositive
+		return 0, ErrOffsetAndLimitShouldBePositive
 	}
 
-	if strings.Index(fromPath, "/dev/") == 0 || strings.Index(toPath, "/dev/") == 0 {
-		return nil, 0, ErrUnsupportedFile
-	}
-
-	fromFile, err := os.Open(fromPath)
+	fromFileInfo, err := os.Stat(fromPath)
 	if err != nil {
-		return nil, 0, err
+		return 0, err
 	}
 
-	fromFileInfo, err := fromFile.Stat()
-	if err != nil {
-		return nil, 0, err
+	if !fromFileInfo.Mode().IsRegular() {
+		return 0, ErrUnsupportedFile
 	}
+
+	toFileInfo, err := os.Stat(toPath)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return 0, err
+	}
+
+	if toFileInfo != nil && !toFileInfo.Mode().IsRegular() {
+		return 0, ErrUnsupportedFile
+	}
+
 	fromFileSize := fromFileInfo.Size()
 	if offset > fromFileSize {
-		return nil, 0, ErrOffsetExceedsFileSize
+		return 0, ErrOffsetExceedsFileSize
 	}
 
-	return fromFile, fromFileSize, nil
+	return fromFileSize, nil
 }
