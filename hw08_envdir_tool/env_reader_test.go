@@ -2,18 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestReadDir(t *testing.T) {
-
 	t.Run("validate filenames", func(t *testing.T) {
 		dir := t.TempDir()
 		defer cleanUpDir(dir)
 
-		err := os.WriteFile(dir+"/Wrong=name", []byte(""), 777)
+		err := os.WriteFile(dir+"/Wrong=name", []byte(""), 0o777)
 		require.NoError(t, err)
 
 		envMap, err := ReadDir(dir)
@@ -27,7 +27,7 @@ func TestReadDir(t *testing.T) {
 
 		testKey := "TEST"
 		testValue := "test_value"
-		err := os.WriteFile(dir+"/"+testKey, []byte(testValue+"\nSecond line"), 777)
+		err := os.WriteFile(dir+"/"+testKey, []byte(testValue+"\nSecond line"), 0o777)
 		require.NoError(t, err)
 
 		envMap, err := ReadDir(dir)
@@ -63,7 +63,7 @@ func TestReadDir(t *testing.T) {
 				dir := t.TempDir()
 				defer cleanUpDir(dir)
 
-				err := os.WriteFile(dir+"/"+tt.filename, []byte(tt.firstLine+"\nSecond line"), 777)
+				err := os.WriteFile(dir+"/"+tt.filename, []byte(tt.firstLine+"\nSecond line"), 0o777)
 				require.NoError(t, err)
 
 				envMap, err := ReadDir(dir)
@@ -97,7 +97,7 @@ func TestReadDir(t *testing.T) {
 				dir := t.TempDir()
 				defer cleanUpDir(dir)
 
-				err := os.WriteFile(dir+"/"+tt.filename, []byte(tt.firstLine), 777)
+				err := os.WriteFile(dir+"/"+tt.filename, []byte(tt.firstLine), 0o777)
 				require.NoError(t, err)
 
 				envMap, err := ReadDir(dir)
@@ -113,12 +113,10 @@ func TestReadDir(t *testing.T) {
 			})
 		}
 	})
-
 }
 
 func cleanUpDir(dirName string) {
-	err := os.RemoveAll(dirName)
-	if err != nil {
+	if err := os.RemoveAll(dirName); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "error during files removing: %v", err)
 	}
 }
