@@ -40,7 +40,7 @@ func ReadDir(dir string) (Environment, error) {
 			defer func(file *os.File) {
 				err := file.Close()
 				if err != nil {
-					_, _ = fmt.Fprintf(os.Stderr, "error occurred during file closing: %v", err)
+					_, _ = fmt.Fprintf(os.Stderr, "error ocurred during file closing: %v", err)
 				}
 			}(file)
 
