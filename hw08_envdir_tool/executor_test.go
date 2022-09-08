@@ -2,13 +2,13 @@ package main
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestRunCmd(t *testing.T) {
-
 	t.Run("run with stdin and extra arguments", func(t *testing.T) {
 		mockStdin, mockStdout, mockStderr := resetExecutorStreams()
 
@@ -19,7 +19,10 @@ func TestRunCmd(t *testing.T) {
 		require.Equal(t, 0, code)
 
 		require.Empty(t, mockStderr.String())
-		require.Equal(t, "VALUE: (); EXIT CODE: 0; All arguments: 0 testarg; Stdin content: "+testStdinValue, mockStdout.String())
+		require.Equal(
+			t, "VALUE: (); EXIT CODE: 0; All arguments: 0 testarg; Stdin content: "+testStdinValue,
+			mockStdout.String(),
+		)
 	})
 
 	t.Run("run with different exit code and stderr", func(t *testing.T) {

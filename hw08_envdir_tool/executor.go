@@ -1,10 +1,11 @@
 package main
 
 import (
+	"errors"
 	"io"
 	"log"
 	"os"
-	"os/exec"
+	exec "os/exec"
 )
 
 type ExcecutorStreams struct {
@@ -34,7 +35,8 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 
 	returnCode = 0
 	if err := cmdExec.Wait(); err != nil {
-		if exitErr, isExitError := err.(*exec.ExitError); isExitError {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
 			returnCode = exitErr.ExitCode()
 		} else {
 			log.Fatalf("cmd.Wait: %v", err)
@@ -48,14 +50,10 @@ func assembleEnvArray(env Environment) {
 		val := element.Value
 		if element.NeedRemove {
 			if _, exists := os.LookupEnv(key); exists {
-				if err := os.Unsetenv(key); err != nil {
-					log.Printf("Could not unset variable: %v", err)
-				}
+				_ = os.Unsetenv(key)
 			}
 		} else {
-			if err := os.Setenv(key, val); err != nil {
-				log.Printf("Could not set variable: %v", err)
-			}
+			_ = os.Setenv(key, val)
 		}
 	}
 }
