@@ -45,7 +45,6 @@ func ReadDir(dir string) (Environment, error) {
 			}(file)
 
 			scanner := bufio.NewScanner(file)
-			// optionally, resize scanner's capacity for lines over 64K, see next example
 			scanner.Scan()
 			firstLine := scanner.Text()
 			if err := scanner.Err(); err != nil {
