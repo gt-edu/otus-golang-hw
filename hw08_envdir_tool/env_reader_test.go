@@ -49,12 +49,12 @@ func TestReadDir(t *testing.T) {
 			firstLine     string
 			expectedValue string
 		}{
-			{"TEST_TRIM1", "   value", "value"},
+			{"TEST_TRIM1", "   value", "   value"},
 			{"TEST_TRIM2", "value   ", "value"},
-			{"TEST_TRIM3", "\t\t\tvalue", "value"},
+			{"TEST_TRIM3", "\t\t\tvalue", "\t\t\tvalue"},
 			{"TEST_TRIM4", "value\t\t", "value"},
-			{"TEST_TRIM5", "   value\t\t   ", "value"},
-			{"TEST_TRIM6", "\t\t   value ", "value"},
+			{"TEST_TRIM5", "   value\t\t   ", "   value"},
+			{"TEST_TRIM6", "\t\t   value ", "\t\t   value"},
 			{"TEST_REPLACE_ZERO", zeroStr + "first" + zeroStr + "second" + zeroStr, "\nfirst\nsecond\n"},
 		}
 

@@ -52,7 +52,7 @@ func ReadDir(dir string) (Environment, error) {
 				return nil, err
 			}
 
-			firstLine = strings.Trim(firstLine, " \t")
+			firstLine = strings.TrimRight(firstLine, " \t")
 			firstLine = strings.ReplaceAll(firstLine, string(byte(0)), "\n")
 
 			needRemove := len(firstLine) == 0
