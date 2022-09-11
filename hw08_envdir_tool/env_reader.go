@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -33,21 +34,8 @@ func ReadDir(dir string) (Environment, error) {
 				return nil, ErrUnsupportedFilename
 			}
 
-			file, err := os.Open(dir + "/" + dirEntry.Name())
+			firstLine, err := getFirstLine(dir, dirEntry)
 			if err != nil {
-				return nil, err
-			}
-			defer func(file *os.File) {
-				err := file.Close()
-				if err != nil {
-					_, _ = fmt.Fprintf(os.Stderr, "error occurred during file closing: %v", err)
-				}
-			}(file)
-
-			scanner := bufio.NewScanner(file)
-			scanner.Scan()
-			firstLine := scanner.Text()
-			if err := scanner.Err(); err != nil {
 				return nil, err
 			}
 
@@ -63,4 +51,25 @@ func ReadDir(dir string) (Environment, error) {
 	}
 
 	return env, nil
+}
+
+func getFirstLine(dir string, dirEntry os.DirEntry) (string, error) {
+	file, err := os.Open(filepath.Join(dir, dirEntry.Name()))
+	if err != nil {
+		return "", err
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "error occurred during file closing: %v", err)
+		}
+	}(file)
+
+	scanner := bufio.NewScanner(file)
+	scanner.Scan()
+	firstLine := scanner.Text()
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+	return firstLine, nil
 }
