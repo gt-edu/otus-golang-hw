@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"testing"
+
 	"github.com/gt-edu/otus-golang-hw/hw09_struct_validator/validators"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 type UserRole string
