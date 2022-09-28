@@ -37,7 +37,7 @@ func Validate(v interface{}) error {
 			continue
 		}
 
-		var vv interface{} = nil
+		var vv interface{}
 
 		rfFieldVal := rfVal.Field(i)
 		if rfFieldVal.IsValid() && rfFieldVal.CanInterface() {
