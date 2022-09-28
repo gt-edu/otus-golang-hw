@@ -3,7 +3,6 @@ package hw09structvalidator
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/gt-edu/otus-golang-hw/hw09_struct_validator/validators"
@@ -44,6 +43,7 @@ type (
 
 func TestValidate(t *testing.T) {
 	tests := []struct {
+		name        string
 		in          interface{}
 		expectedErr error
 	}{
@@ -70,16 +70,26 @@ func TestValidate(t *testing.T) {
 		//	expectedErr: nil,
 		//},
 		{
+			name:        "value is not struct",
 			in:          UserRole("test"),
 			expectedErr: validators.ErrValueIsNotStruct,
 		},
 		{
+			name: "simple case",
 			in: struct {
 				Age int `validate:"max:2"`
 			}{1},
 			expectedErr: nil,
 		},
 		{
+			name: "simple case slices",
+			in: struct {
+				Ages []int `validate:"max:2"`
+			}{[]int{1, 2}},
+			expectedErr: nil,
+		},
+		{
+			name: "value bigger then",
 			in: struct {
 				Age int `validate:"max:2"`
 			}{3},
@@ -87,10 +97,19 @@ func TestValidate(t *testing.T) {
 				NewValidationError("Age", "input value '3' is greater then maximum '2'"),
 			},
 		},
+		{
+			name: "value bigger then slices",
+			in: struct {
+				Ages []int `validate:"max:2"`
+			}{[]int{3, 2}},
+			expectedErr: ValidationErrors{
+				NewValidationError("Ages", "input value '3' is greater then maximum '2'"),
+			},
+		},
 	}
 
-	for i, tt := range tests {
-		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 			tt := tt
 			t.Parallel()
 

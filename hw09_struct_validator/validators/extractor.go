@@ -7,30 +7,6 @@ import (
 	"strings"
 )
 
-func Factory(name string, structField reflect.StructField, constraint string) (Validator, error) {
-	var validator Validator = nil
-	if name == "max" {
-		validator = &MaxValidator{}
-	}
-
-	if validator == nil {
-		return nil, ErrUnavailableValidator
-	}
-
-	if !validator.HasValidType(structField.Type) {
-		return nil, ErrInvalidType
-	}
-
-	validator.SetConstraint(constraint)
-
-	err := validator.ParseConstraint()
-	if err != nil {
-		return nil, err
-	}
-
-	return validator, nil
-}
-
 func ExtractValidators(rfVal reflect.Value) ([][]Validator, error) {
 	if rfVal.Kind() != reflect.Struct {
 		return nil, ErrValueIsNotStruct

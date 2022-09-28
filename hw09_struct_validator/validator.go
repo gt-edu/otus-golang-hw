@@ -37,19 +37,25 @@ func Validate(v interface{}) error {
 			continue
 		}
 
-		var vv interface{}
-
 		rfFieldVal := rfVal.Field(i)
-		if rfFieldVal.IsValid() && rfFieldVal.CanInterface() {
-			vv = rfFieldVal.Interface()
-		} else {
+		if !rfFieldVal.IsValid() || !rfFieldVal.CanInterface() {
 			continue
 		}
 
+		rfFieldType := rfFieldVal.Type()
 		for _, vld := range validatorList {
-			err := vld.ValidateValue(vv)
-			if err != nil {
-				allErrors = append(allErrors, ValidationError{Field: rfVal.Type().Field(i).Name, Err: err})
+			if rfFieldType.Kind() == reflect.Slice {
+				for ii := 0; ii < rfFieldVal.Len(); ii++ {
+					err := vld.ValidateValue(rfFieldVal.Index(ii).Interface())
+					if err != nil {
+						allErrors = append(allErrors, ValidationError{Field: rfVal.Type().Field(i).Name, Err: err})
+					}
+				}
+			} else {
+				err := vld.ValidateValue(rfFieldVal.Interface())
+				if err != nil {
+					allErrors = append(allErrors, ValidationError{Field: rfVal.Type().Field(i).Name, Err: err})
+				}
 			}
 		}
 	}

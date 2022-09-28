@@ -16,15 +16,5 @@ var (
 type Validator interface {
 	HasValidType(rfType reflect.Type) bool
 	ValidateValue(v interface{}) error
-	SetConstraint(c string)
-	ParseConstraint() error
-}
-
-type BaseValidator struct {
-	constraint string
-	kind       reflect.Kind
-}
-
-func (vld *BaseValidator) SetConstraint(c string) {
-	vld.constraint = c
+	SetConstraint(c string) error
 }

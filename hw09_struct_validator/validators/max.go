@@ -1,13 +1,13 @@
 package validators
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"reflect"
 	"strconv"
 )
 
 type MaxValidator struct {
-	BaseValidator
 	max int
 }
 
@@ -29,13 +29,21 @@ func (vld *MaxValidator) HasValidType(rfType reflect.Type) bool {
 		return true
 	}
 
-	return rfType.Kind() == reflect.Slice && rfType.Elem().Kind() == reflect.Int
+	if rfType.Kind() == reflect.Slice && rfType.Elem().Kind() == reflect.Int {
+		return true
+	}
+
+	return false
 }
 
-func (vld *MaxValidator) ParseConstraint() error {
-	max, err := strconv.Atoi(vld.constraint)
+func (vld *MaxValidator) SetConstraint(c string) error {
+	max, err := strconv.Atoi(c)
 	if err != nil {
 		return errors.Wrap(ErrInvalidConstraintValue, err.Error())
+	}
+
+	if max <= 0 {
+		return errors.Wrap(ErrInvalidConstraintValue, fmt.Sprintf("'%d' less or equal zero", max))
 	}
 
 	vld.max = max
