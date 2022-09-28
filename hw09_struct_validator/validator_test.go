@@ -2,11 +2,16 @@ package hw09structvalidator
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/gt-edu/otus-golang-hw/hw09_struct_validator/validators"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
 type UserRole string
+
+type CustomUser User
 
 // Test the function on different structures and other types.
 type (
@@ -41,11 +46,46 @@ func TestValidate(t *testing.T) {
 		in          interface{}
 		expectedErr error
 	}{
+		//{
+		//	in: User{
+		//		ID:     "1",
+		//		Name:   "Test",
+		//		Age:    22,
+		//		Email:  "test@example.org",
+		//		Role:   "admin",
+		//		Phones: []string{"12345678901"},
+		//	},
+		//	expectedErr: nil,
+		//},
+		//{
+		//	in: CustomUser{
+		//		ID:     "1",
+		//		Name:   "Test",
+		//		Age:    22,
+		//		Email:  "test@example.org",
+		//		Role:   "admin",
+		//		Phones: []string{"12345678901"},
+		//	},
+		//	expectedErr: nil,
+		//},
 		{
-			// Place your code here.
+			in:          UserRole("test"),
+			expectedErr: validators.ErrValueIsNotStruct,
 		},
-		// ...
-		// Place your code here.
+		{
+			in: struct {
+				Age int `validate:"max:2"`
+			}{1},
+			expectedErr: nil,
+		},
+		{
+			in: struct {
+				Age int `validate:"max:2"`
+			}{3},
+			expectedErr: ValidationErrors{
+				NewValidationError("Age", "input value '3' is greater then maximum '2'"),
+			},
+		},
 	}
 
 	for i, tt := range tests {
@@ -53,8 +93,51 @@ func TestValidate(t *testing.T) {
 			tt := tt
 			t.Parallel()
 
+			err := Validate(tt.in)
+			if tt.expectedErr == nil {
+				require.NoError(t, err)
+			} else {
+				require.Equal(t, err.Error(), tt.expectedErr.Error())
+			}
+
 			// Place your code here.
 			_ = tt
+		})
+	}
+}
+
+func NewValidationError(fieldName, errMsg string) ValidationError {
+	return ValidationError{
+		Field: fieldName,
+		Err:   errors.New(errMsg),
+	}
+}
+
+func TestValidationErrors_Error(t *testing.T) {
+	tests := []struct {
+		name string
+		v    ValidationErrors
+		want string
+	}{
+		{
+			name: "simple case",
+			v: ValidationErrors{
+				ValidationError{Field: "f1", Err: errors.New("err1")},
+				ValidationError{Field: "f2", Err: errors.New("err2")},
+				ValidationError{Field: "f3", Err: errors.New("err3")},
+			},
+			want: "Validation errors: f1: err1; f2: err2; f3: err3",
+		},
+		{
+			name: "empty",
+			v:    ValidationErrors{},
+			want: "Validation errors: ",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.v.Error()
+			require.Equal(t, tt.want, got)
 		})
 	}
 }
