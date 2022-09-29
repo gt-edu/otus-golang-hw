@@ -48,22 +48,6 @@ func TestMinValidator_ValidateValue(t *testing.T) {
 }
 
 func TestMinValidator_SetConstraint(t *testing.T) {
-	tests := []struct {
-		name    string
-		c       string
-		wantErr error
-	}{
-		{"simple case", "2", nil},
-		{"negative", "-1", nil},
-		{"zero", "0", nil},
-		{"incorrect int", "1{2", ErrInvalidConstraintValue},
-		{"whitespaces", " ", ErrInvalidConstraintValue},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			vld := &MinValidator{}
-			err := vld.SetConstraint(tt.c)
-			require.ErrorIs(t, err, tt.wantErr)
-		})
-	}
+	vld := &MaxValidator{}
+	testIntSetConstraint(t, vld, true)
 }

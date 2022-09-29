@@ -9,6 +9,8 @@ func Factory(name string, structField reflect.StructField, constraint string) (V
 		validator = &MaxValidator{}
 	case "min":
 		validator = &MinValidator{}
+	case "len":
+		validator = &LenValidator{}
 	default:
 		return nil, ErrUnavailableValidator
 	}

@@ -134,6 +134,39 @@ func TestValidate(t *testing.T) {
 				NewValidationError("AgesF", "input value '-1.1' less then minimum '0'"),
 			},
 		},
+		{
+			name: "len simple case",
+			in: struct {
+				Phone string `validate:"len:10"`
+			}{"123456789界"},
+			expectedErr: nil,
+		},
+		{
+			name: "len simple case slices",
+			in: struct {
+				Phones []string `validate:"len:10"`
+			}{[]string{"123456789界", "000456789界"}},
+			expectedErr: nil,
+		},
+		{
+			name: "len note equal",
+			in: struct {
+				Phone string `validate:"len:10"`
+			}{"12345678界"},
+			expectedErr: ValidationErrors{
+				NewValidationError("Phone", "input value '12345678界' has a length not equal '10'"),
+			},
+		},
+		{
+			name: "len simple case slices",
+			in: struct {
+				Phones []string `validate:"len:10"`
+			}{[]string{"12345678界", "00045678界"}},
+			expectedErr: ValidationErrors{
+				NewValidationError("Phones", "input value '12345678界' has a length not equal '10'"),
+				NewValidationError("Phones", "input value '00045678界' has a length not equal '10'"),
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -145,7 +178,7 @@ func TestValidate(t *testing.T) {
 			if tt.expectedErr == nil {
 				require.NoError(t, err)
 			} else {
-				require.Equal(t, err.Error(), tt.expectedErr.Error())
+				require.Equal(t, tt.expectedErr.Error(), err.Error())
 			}
 
 			// Place your code here.
