@@ -3,7 +3,6 @@ package validators
 import (
 	"fmt"
 	"github.com/stretchr/testify/require"
-	"reflect"
 	"testing"
 )
 
@@ -14,7 +13,7 @@ func TestValidateValue(t *testing.T) {
 		require.NoError(t, err)
 
 		tests := []struct {
-			v      int
+			v      interface{}
 			errMsg string
 		}{
 			{v: -1, errMsg: ""},
@@ -22,6 +21,16 @@ func TestValidateValue(t *testing.T) {
 			{v: 1, errMsg: ""},
 			{v: 3, errMsg: ""},
 			{v: 4, errMsg: "input value '4' is greater then maximum '3'"},
+			{v: -1.0, errMsg: ""},
+			{v: 0.0, errMsg: ""},
+			{v: 1.0, errMsg: ""},
+			{v: 3.0, errMsg: ""},
+			{v: 4.1, errMsg: "input value '4.1' is greater then maximum '3'"},
+			{v: float32(-1.0), errMsg: ""},
+			{v: float32(0.0), errMsg: ""},
+			{v: float32(1.0), errMsg: ""},
+			{v: float32(3.0), errMsg: ""},
+			{v: float32(4.1), errMsg: "input value '4.1' is greater then maximum '3'"},
 		}
 
 		for i, tt := range tests {
@@ -55,44 +64,6 @@ func TestMaxValidator_SetConstraint(t *testing.T) {
 			vld := &MaxValidator{}
 			err := vld.SetConstraint(tt.c)
 			require.ErrorIs(t, err, tt.wantErr)
-		})
-	}
-}
-
-func TestMaxValidator_HasValidType(t *testing.T) {
-	tests := []struct {
-		name   string
-		rfType reflect.Type
-		want   bool
-	}{
-		{
-			name: "single int",
-			rfType: reflect.ValueOf(struct {
-				Age int
-			}{}).Type().Field(0).Type,
-			want: true,
-		},
-		{
-			name: "slice int",
-			rfType: reflect.ValueOf(struct {
-				Age []int
-			}{}).Type().Field(0).Type,
-			want: true,
-		},
-		{
-			name: "string",
-			rfType: reflect.ValueOf(struct {
-				Age string
-			}{}).Type().Field(0).Type,
-			want: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			vld := &MaxValidator{}
-			if got := vld.HasValidType(tt.rfType); got != tt.want {
-				t.Errorf("HasValidType() = %v, want %v", got, tt.want)
-			}
 		})
 	}
 }

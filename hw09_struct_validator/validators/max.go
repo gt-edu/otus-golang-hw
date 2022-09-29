@@ -12,28 +12,36 @@ type MaxValidator struct {
 }
 
 func (vld *MaxValidator) ValidateValue(v interface{}) error {
-	intValue := v.(int)
+	valid := true
+	switch vt := v.(type) {
+	case int:
+		if vt > vld.max {
+			valid = false
+		}
+	case float32:
+		if vt > float32(vld.max) {
+			valid = false
+		}
+	case float64:
+		if vt > float64(vld.max) {
+			valid = false
+		}
+	default:
+		return ErrInvalidType
 
-	if intValue > vld.max {
+	}
+	if !valid {
 		return errors.Errorf(
-			"input value '%d' is greater then maximum '%d'",
-			intValue, vld.max,
+			"input value '%v' is greater then maximum '%d'",
+			v, vld.max,
 		)
 	}
 
 	return nil
 }
 
-func (vld *MaxValidator) HasValidType(rfType reflect.Type) bool {
-	if rfType.Kind() == reflect.Int {
-		return true
-	}
-
-	if rfType.Kind() == reflect.Slice && rfType.Elem().Kind() == reflect.Int {
-		return true
-	}
-
-	return false
+func (vld *MaxValidator) GetValidKinds() []reflect.Kind {
+	return []reflect.Kind{reflect.Int, reflect.Float64, reflect.Float32}
 }
 
 func (vld *MaxValidator) SetConstraint(c string) error {

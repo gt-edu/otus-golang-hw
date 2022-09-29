@@ -14,7 +14,7 @@ var (
 )
 
 type Validator interface {
-	HasValidType(rfType reflect.Type) bool
+	GetValidKinds() []reflect.Kind
 	ValidateValue(v interface{}) error
 	SetConstraint(c string) error
 }

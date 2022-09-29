@@ -12,7 +12,7 @@ func Factory(name string, structField reflect.StructField, constraint string) (V
 		return nil, ErrUnavailableValidator
 	}
 
-	if !validator.HasValidType(structField.Type) {
+	if !isKindValid(validator, structField) {
 		return nil, ErrInvalidType
 	}
 
@@ -22,4 +22,22 @@ func Factory(name string, structField reflect.StructField, constraint string) (V
 	}
 
 	return validator, nil
+}
+
+func isKindValid(validator Validator, structField reflect.StructField) bool {
+	isKindValid := false
+	validKinds := validator.GetValidKinds()
+	for _, knd := range validKinds {
+		rfType := structField.Type
+		if rfType.Kind() == knd {
+			isKindValid = true
+			break
+		}
+
+		if rfType.Kind() == reflect.Slice && rfType.Elem().Kind() == knd {
+			isKindValid = true
+			break
+		}
+	}
+	return isKindValid
 }
