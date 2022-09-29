@@ -6,10 +6,10 @@ import (
 	"testing"
 )
 
-func TestMaxValidator_TestValidateValue(t *testing.T) {
+func TestMinValidator_ValidateValue(t *testing.T) {
 	t.Run("test max validate value", func(t *testing.T) {
-		validator := MaxValidator{}
-		err := validator.SetConstraint("3")
+		validator := MinValidator{}
+		err := validator.SetConstraint("-3")
 		require.NoError(t, err)
 
 		tests := []struct {
@@ -20,17 +20,17 @@ func TestMaxValidator_TestValidateValue(t *testing.T) {
 			{v: 0, errMsg: ""},
 			{v: 1, errMsg: ""},
 			{v: 3, errMsg: ""},
-			{v: 4, errMsg: "input value '4' is greater then maximum '3'"},
+			{v: -4, errMsg: "input value '-4' less then minimum '-3'"},
 			{v: -1.0, errMsg: ""},
 			{v: 0.0, errMsg: ""},
 			{v: 1.0, errMsg: ""},
 			{v: 3.0, errMsg: ""},
-			{v: 4.1, errMsg: "input value '4.1' is greater then maximum '3'"},
+			{v: -4.1, errMsg: "input value '-4.1' less then minimum '-3'"},
 			{v: float32(-1.0), errMsg: ""},
 			{v: float32(0.0), errMsg: ""},
 			{v: float32(1.0), errMsg: ""},
 			{v: float32(3.0), errMsg: ""},
-			{v: float32(4.1), errMsg: "input value '4.1' is greater then maximum '3'"},
+			{v: float32(-4.1), errMsg: "input value '-4.1' less then minimum '-3'"},
 		}
 
 		for i, tt := range tests {
@@ -47,7 +47,7 @@ func TestMaxValidator_TestValidateValue(t *testing.T) {
 	})
 }
 
-func TestMaxValidator_SetConstraint(t *testing.T) {
+func TestMinValidator_SetConstraint(t *testing.T) {
 	tests := []struct {
 		name    string
 		c       string
@@ -61,7 +61,7 @@ func TestMaxValidator_SetConstraint(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			vld := &MaxValidator{}
+			vld := &MinValidator{}
 			err := vld.SetConstraint(tt.c)
 			require.ErrorIs(t, err, tt.wantErr)
 		})

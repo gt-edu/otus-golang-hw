@@ -4,11 +4,12 @@ import "reflect"
 
 func Factory(name string, structField reflect.StructField, constraint string) (Validator, error) {
 	var validator Validator = nil
-	if name == "max" {
+	switch name {
+	case "max":
 		validator = &MaxValidator{}
-	}
-
-	if validator == nil {
+	case "min":
+		validator = &MinValidator{}
+	default:
 		return nil, ErrUnavailableValidator
 	}
 

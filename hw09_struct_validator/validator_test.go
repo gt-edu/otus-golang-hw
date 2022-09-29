@@ -75,35 +75,63 @@ func TestValidate(t *testing.T) {
 			expectedErr: validators.ErrValueIsNotStruct,
 		},
 		{
-			name: "simple case",
+			name: "max-min simple case",
 			in: struct {
-				Age int `validate:"max:2"`
-			}{1},
+				Age  int     `validate:"max:2|min:0"`
+				AgeF float32 `validate:"max:2|min:0"`
+			}{1, float32(1.0)},
 			expectedErr: nil,
 		},
 		{
-			name: "simple case slices",
+			name: "max-min simple case slices",
 			in: struct {
-				Ages []int `validate:"max:2"`
-			}{[]int{1, 2}},
+				Ages  []int     `validate:"max:2|min:0"`
+				AgesF []float64 `validate:"max:2|min:0"`
+			}{[]int{1, 2}, []float64{1.0, 2.0}},
 			expectedErr: nil,
 		},
 		{
-			name: "value bigger then",
+			name: "max-min value bigger then",
 			in: struct {
-				Age int `validate:"max:2"`
-			}{3},
+				Age  int     `validate:"max:2|min:0"`
+				AgeF float32 `validate:"max:2|min:0"`
+			}{3, float32(3.1)},
 			expectedErr: ValidationErrors{
 				NewValidationError("Age", "input value '3' is greater then maximum '2'"),
+				NewValidationError("AgeF", "input value '3.1' is greater then maximum '2'"),
 			},
 		},
 		{
-			name: "value bigger then slices",
+			name: "max-min slice value bigger then",
 			in: struct {
-				Ages []int `validate:"max:2"`
-			}{[]int{3, 2}},
+				Ages  []int     `validate:"max:2|min:0"`
+				AgesF []float64 `validate:"max:2|min:0"`
+			}{[]int{3, 2}, []float64{3.1, 2.0}},
 			expectedErr: ValidationErrors{
 				NewValidationError("Ages", "input value '3' is greater then maximum '2'"),
+				NewValidationError("AgesF", "input value '3.1' is greater then maximum '2'"),
+			},
+		},
+		{
+			name: "max-min value less then",
+			in: struct {
+				Age  int     `validate:"max:2|min:0"`
+				AgeF float32 `validate:"max:2|min:0"`
+			}{-1, float32(-1.1)},
+			expectedErr: ValidationErrors{
+				NewValidationError("Age", "input value '-1' less then minimum '0'"),
+				NewValidationError("AgeF", "input value '-1.1' less then minimum '0'"),
+			},
+		},
+		{
+			name: "max-min slice value less then",
+			in: struct {
+				Ages  []int     `validate:"max:2|min:0"`
+				AgesF []float64 `validate:"max:2|min:0"`
+			}{[]int{-1, 2}, []float64{-1.1, 2.0}},
+			expectedErr: ValidationErrors{
+				NewValidationError("Ages", "input value '-1' less then minimum '0'"),
+				NewValidationError("AgesF", "input value '-1.1' less then minimum '0'"),
 			},
 		},
 	}

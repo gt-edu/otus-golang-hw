@@ -6,23 +6,23 @@ import (
 	"strconv"
 )
 
-type MaxValidator struct {
-	max int
+type MinValidator struct {
+	min int
 }
 
-func (vld *MaxValidator) ValidateValue(v interface{}) error {
+func (vld *MinValidator) ValidateValue(v interface{}) error {
 	valid := true
 	switch vt := v.(type) {
 	case int:
-		if vt > vld.max {
+		if vt < vld.min {
 			valid = false
 		}
 	case float32:
-		if vt > float32(vld.max) {
+		if vt < float32(vld.min) {
 			valid = false
 		}
 	case float64:
-		if vt > float64(vld.max) {
+		if vt < float64(vld.min) {
 			valid = false
 		}
 	default:
@@ -31,25 +31,25 @@ func (vld *MaxValidator) ValidateValue(v interface{}) error {
 	}
 	if !valid {
 		return errors.Errorf(
-			"input value '%v' is greater then maximum '%d'",
-			v, vld.max,
+			"input value '%v' less then minimum '%d'",
+			v, vld.min,
 		)
 	}
 
 	return nil
 }
 
-func (vld *MaxValidator) GetValidKinds() []reflect.Kind {
+func (vld *MinValidator) GetValidKinds() []reflect.Kind {
 	return []reflect.Kind{reflect.Int, reflect.Float64, reflect.Float32}
 }
 
-func (vld *MaxValidator) SetConstraint(c string) error {
-	max, err := strconv.Atoi(c)
+func (vld *MinValidator) SetConstraint(c string) error {
+	min, err := strconv.Atoi(c)
 	if err != nil {
 		return errors.Wrap(ErrInvalidConstraintValue, err.Error())
 	}
 
-	vld.max = max
+	vld.min = min
 
 	return nil
 }
