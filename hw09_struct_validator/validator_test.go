@@ -22,11 +22,17 @@ type (
 		Email  string   `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
 		Role   UserRole `validate:"in:admin,stuff"`
 		Phones []string `validate:"len:11"`
-		meta   json.RawMessage
+
+		meta json.RawMessage //nolint:structcheck,unused
 	}
 
 	App struct {
 		Version string `validate:"len:5"`
+	}
+
+	AppWithUnexported struct {
+		Version string `validate:"len:5"`
+		secret  string `validate:"len:1"`
 	}
 
 	Token struct {
@@ -47,28 +53,50 @@ func TestValidate(t *testing.T) { //nolint:funlen
 		in          interface{}
 		expectedErr error
 	}{
-		//{
-		//	in: User{
-		//		ID:     "1",
-		//		Name:   "Test",
-		//		Age:    22,
-		//		Email:  "test@example.org",
-		//		Role:   "admin",
-		//		Phones: []string{"12345678901"},
-		//	},
-		//	expectedErr: nil,
-		//},
-		//{
-		//	in: CustomUser{
-		//		ID:     "1",
-		//		Name:   "Test",
-		//		Age:    22,
-		//		Email:  "test@example.org",
-		//		Role:   "admin",
-		//		Phones: []string{"12345678901"},
-		//	},
-		//	expectedErr: nil,
-		//},
+		{
+			name: "valid User",
+			in: User{
+				ID:     "123456789012345678901234567890123456",
+				Name:   "Test",
+				Age:    22,
+				Email:  "test@example.org",
+				Role:   "admin",
+				Phones: []string{"12345678901"},
+			},
+			expectedErr: nil,
+		},
+		{
+			name: "valid CustomUser",
+			in: CustomUser{
+				ID:     "123456789012345678901234567890123456",
+				Name:   "Test",
+				Age:    22,
+				Email:  "test@example.org",
+				Role:   "admin",
+				Phones: []string{"12345678901"},
+			},
+			expectedErr: nil,
+		},
+		{
+			name:        "valid App",
+			in:          App{Version: "12345"},
+			expectedErr: nil,
+		},
+		{
+			name:        "valid AppWithUnexported",
+			in:          AppWithUnexported{Version: "12345", secret: "zzzz"},
+			expectedErr: nil,
+		},
+		{
+			name:        "valid Response",
+			in:          Response{Code: 200},
+			expectedErr: nil,
+		},
+		{
+			name:        "valid Token",
+			in:          Token{Header: []byte{1}, Payload: []byte{2}, Signature: []byte{2}},
+			expectedErr: nil,
+		},
 		{
 			name:        "value is not struct",
 			in:          UserRole("test"),

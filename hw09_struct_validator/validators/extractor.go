@@ -38,8 +38,6 @@ func ExtractValidators(rfVal reflect.Value) ([][]Validator, error) {
 		}
 
 		fieldsValidators[i] = oneFieldValidators
-
-		fmt.Printf("Name: %v, Tags: %v, Validators: %v\n", rfType.Field(i).Name, rfType.Field(i).Tag, oneFieldValidators)
 	}
 	return fieldsValidators, nil
 }

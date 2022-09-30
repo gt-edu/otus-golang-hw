@@ -1,9 +1,9 @@
 package validators
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"reflect"
-	"strconv"
 	"strings"
 )
 
@@ -14,14 +14,13 @@ type InValidator struct {
 
 func (vld *InValidator) ValidateValue(v interface{}) error {
 	valid := true
-	switch vt := v.(type) {
-	case int:
-		key := strconv.Itoa(vt)
-		if _, found := vld.inMap[key]; !found {
+	switch reflect.ValueOf(v).Kind() {
+	case reflect.Int:
+		if _, found := vld.inMap[fmt.Sprintf("%d", v)]; !found {
 			valid = false
 		}
-	case string:
-		if _, found := vld.inMap[vt]; !found {
+	case reflect.String:
+		if _, found := vld.inMap[fmt.Sprintf("%v", v)]; !found {
 			valid = false
 		}
 	default:

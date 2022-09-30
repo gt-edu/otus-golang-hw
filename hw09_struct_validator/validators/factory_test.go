@@ -77,8 +77,8 @@ func TestFactory(t *testing.T) {
 		{
 			name: "get regexp",
 			args: args{name: "regexp", fieldName: "age", structField: reflect.ValueOf(struct {
-				Age string `validate:"regexp:\\d+"`
-			}{"234"}).Type().Field(0), constraint: "\\d+"},
+				Age []string `validate:"regexp:\\d+"`
+			}{[]string{"234", "234"}}).Type().Field(0), constraint: "\\d+"},
 			wantValidator: &RegexpValidator{},
 			wantErr:       nil,
 		},

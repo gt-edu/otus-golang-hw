@@ -1,6 +1,7 @@
 package validators
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"reflect"
 	"strconv"
@@ -12,8 +13,7 @@ type LenValidator struct {
 }
 
 func (vld *LenValidator) ValidateValue(v interface{}) error {
-
-	valid := utf8.RuneCountInString(v.(string)) == vld.len
+	valid := utf8.RuneCountInString(fmt.Sprintf("%v", v)) == vld.len
 
 	if !valid {
 		return errors.Errorf(

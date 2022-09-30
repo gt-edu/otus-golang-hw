@@ -5,6 +5,9 @@ import (
 	"testing"
 )
 
+type CustomInt int
+type CustomString string
+
 func testIntSetConstraint(t *testing.T, vld Validator, negativeOk bool) {
 	type testf struct {
 		name    string
