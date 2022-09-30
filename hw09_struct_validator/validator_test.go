@@ -158,13 +158,51 @@ func TestValidate(t *testing.T) {
 			},
 		},
 		{
-			name: "len simple case slices",
+			name: "len note equal slices",
 			in: struct {
 				Phones []string `validate:"len:10"`
 			}{[]string{"12345678界", "00045678界"}},
 			expectedErr: ValidationErrors{
 				NewValidationError("Phones", "input value '12345678界' has a length not equal '10'"),
 				NewValidationError("Phones", "input value '00045678界' has a length not equal '10'"),
+			},
+		},
+		{
+			name: "in simple case",
+			in: struct {
+				Phone  string `validate:"in:123,456"`
+				PhoneI int    `validate:"in:123,456"`
+			}{"456", 123},
+			expectedErr: nil,
+		},
+		{
+			name: "in simple case - slices",
+			in: struct {
+				Phone  []string `validate:"in:123,456"`
+				PhoneI []int    `validate:"in:123,456"`
+			}{[]string{"456", "123"}, []int{123, 456}},
+			expectedErr: nil,
+		},
+		{
+			name: "in simple case invalid",
+			in: struct {
+				Phone  string `validate:"in:123,456"`
+				PhoneI int    `validate:"in:123,456"`
+			}{"4567", 1234},
+			expectedErr: ValidationErrors{
+				NewValidationError("Phone", "input value '4567' is not in the '123,456' set"),
+				NewValidationError("PhoneI", "input value '1234' is not in the '123,456' set"),
+			},
+		},
+		{
+			name: "in simple case invalid - slices",
+			in: struct {
+				Phone  []string `validate:"in:123,456"`
+				PhoneI []int    `validate:"in:123,456"`
+			}{[]string{"4567", "123"}, []int{1234, 456}},
+			expectedErr: ValidationErrors{
+				NewValidationError("Phone", "input value '4567' is not in the '123,456' set"),
+				NewValidationError("PhoneI", "input value '1234' is not in the '123,456' set"),
 			},
 		},
 	}

@@ -48,6 +48,6 @@ func TestMinValidator_ValidateValue(t *testing.T) {
 }
 
 func TestMinValidator_SetConstraint(t *testing.T) {
-	vld := &MaxValidator{}
+	vld := &MinValidator{}
 	testIntSetConstraint(t, vld, true)
 }
