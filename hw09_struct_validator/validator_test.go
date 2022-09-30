@@ -41,7 +41,7 @@ type (
 	}
 )
 
-func TestValidate(t *testing.T) {
+func TestValidate(t *testing.T) { //nolint:funlen
 	tests := []struct {
 		name        string
 		in          interface{}

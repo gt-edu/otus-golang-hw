@@ -8,7 +8,7 @@ import (
 
 func TestRegexpValidator_ValidateValue(t *testing.T) {
 	validator := RegexpValidator{}
-	err := validator.SetConstraint("\\d+")
+	err := validator.SetConstraint("^\\d+$")
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -17,7 +17,7 @@ func TestRegexpValidator_ValidateValue(t *testing.T) {
 	}{
 		{v: "1234567890", errMsg: ""},
 		//{v: "123456789界", errMsg: ""},
-		{v: "12345678界", errMsg: "input value '12345678界' does not match the '\\d+' regex"},
+		{v: "12345678界", errMsg: "input value '12345678界' does not match the '^\\d+$' regex"},
 	}
 
 	for i, tt := range tests {
