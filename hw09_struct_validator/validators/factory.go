@@ -13,6 +13,8 @@ func Factory(name string, structField reflect.StructField, constraint string) (V
 		validator = &LenValidator{}
 	case "in":
 		validator = &InValidator{}
+	case "regexp":
+		validator = &RegexpValidator{}
 	default:
 		return nil, ErrUnavailableValidator
 	}

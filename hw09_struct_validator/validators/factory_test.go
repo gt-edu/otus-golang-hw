@@ -74,6 +74,14 @@ func TestFactory(t *testing.T) {
 			wantValidator: &InValidator{},
 			wantErr:       nil,
 		},
+		{
+			name: "get regexp",
+			args: args{name: "regexp", fieldName: "age", structField: reflect.ValueOf(struct {
+				Age string `validate:"regexp:\\d+"`
+			}{"234"}).Type().Field(0), constraint: "\\d+"},
+			wantValidator: &RegexpValidator{},
+			wantErr:       nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

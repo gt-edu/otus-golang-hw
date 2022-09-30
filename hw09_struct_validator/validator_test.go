@@ -205,6 +205,39 @@ func TestValidate(t *testing.T) {
 				NewValidationError("PhoneI", "input value '1234' is not in the '123,456' set"),
 			},
 		},
+		{
+			name: "regexp simple case",
+			in: struct {
+				Phone string `validate:"regexp:^\\d+$"`
+			}{"456"},
+			expectedErr: nil,
+		},
+		{
+			name: "regexp simple case - slices",
+			in: struct {
+				Phone []string `validate:"regexp:^\\d+$"`
+			}{[]string{"456", "123"}},
+			expectedErr: nil,
+		},
+		{
+			name: "regexp simple case invalid",
+			in: struct {
+				Phone string `validate:"regexp:^\\d+$"`
+			}{"456z"},
+			expectedErr: ValidationErrors{
+				NewValidationError("Phone", "input value '456z' does not match the '^\\d+$' regex"),
+			},
+		},
+		{
+			name: "in simple case invalid - slices",
+			in: struct {
+				Phone []string `validate:"regexp:^\\d+$"`
+			}{[]string{"456z", "123z", "987"}},
+			expectedErr: ValidationErrors{
+				NewValidationError("Phone", "input value '456z' does not match the '^\\d+$' regex"),
+				NewValidationError("Phone", "input value '123z' does not match the '^\\d+$' regex"),
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -216,6 +249,7 @@ func TestValidate(t *testing.T) {
 			if tt.expectedErr == nil {
 				require.NoError(t, err)
 			} else {
+				require.NotNil(t, err)
 				require.Equal(t, tt.expectedErr.Error(), err.Error())
 			}
 
