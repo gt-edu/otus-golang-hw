@@ -1,9 +1,10 @@
 package validators
 
 import (
-	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestFactory(t *testing.T) {
@@ -14,7 +15,7 @@ func TestFactory(t *testing.T) {
 		constraint  string
 	}
 
-	var tests = []struct {
+	tests := []struct {
 		name          string
 		args          args
 		wantValidator Validator

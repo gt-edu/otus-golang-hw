@@ -2,8 +2,9 @@ package validators
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestMinValidator_ValidateValue(t *testing.T) {

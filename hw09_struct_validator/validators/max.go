@@ -1,9 +1,11 @@
+//nolint:dupl
 package validators
 
 import (
-	"github.com/pkg/errors"
 	"reflect"
 	"strconv"
+
+	"github.com/pkg/errors"
 )
 
 type MaxValidator struct {
@@ -27,7 +29,6 @@ func (vld *MaxValidator) ValidateValue(v interface{}) error {
 		}
 	default:
 		return ErrInvalidType
-
 	}
 	if !valid {
 		return errors.Errorf(

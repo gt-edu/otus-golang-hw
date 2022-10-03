@@ -1,9 +1,10 @@
 package validators
 
 import (
-	"github.com/pkg/errors"
 	"reflect"
 	"regexp"
+
+	"github.com/pkg/errors"
 )
 
 type RegexpValidator struct {

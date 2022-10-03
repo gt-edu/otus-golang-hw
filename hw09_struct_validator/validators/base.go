@@ -1,8 +1,9 @@
 package validators
 
 import (
-	"github.com/pkg/errors"
 	"reflect"
+
+	"github.com/pkg/errors"
 )
 
 var (

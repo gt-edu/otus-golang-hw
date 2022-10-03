@@ -2,10 +2,11 @@ package validators
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"reflect"
 	"strconv"
 	"unicode/utf8"
+
+	"github.com/pkg/errors"
 )
 
 type LenValidator struct {

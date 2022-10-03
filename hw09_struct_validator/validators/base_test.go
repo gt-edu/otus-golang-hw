@@ -1,14 +1,18 @@
 package validators
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
-type CustomInt int
-type CustomString string
+type (
+	CustomInt    int
+	CustomString string
+)
 
 func testIntSetConstraint(t *testing.T, vld Validator, negativeOk bool) {
+	t.Helper()
 	type testf struct {
 		name    string
 		c       string

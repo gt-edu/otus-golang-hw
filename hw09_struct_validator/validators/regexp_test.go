@@ -2,8 +2,9 @@ package validators
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestRegexpValidator_ValidateValue(t *testing.T) {
@@ -16,7 +17,7 @@ func TestRegexpValidator_ValidateValue(t *testing.T) {
 		errMsg string
 	}{
 		{v: "1234567890", errMsg: ""},
-		//{v: "123456789界", errMsg: ""},
+		// {v: "123456789界", errMsg: ""},
 		{v: "12345678界", errMsg: "input value '12345678界' does not match the '^\\d+$' regex"},
 	}
 

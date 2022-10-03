@@ -3,7 +3,7 @@ package validators
 import "reflect"
 
 func Factory(name string, structField reflect.StructField, constraint string) (Validator, error) {
-	var validator Validator = nil
+	var validator Validator
 	switch name {
 	case "max":
 		validator = &MaxValidator{}

@@ -1,9 +1,10 @@
 package validators
 
 import (
-	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestExtractValidators(t *testing.T) {

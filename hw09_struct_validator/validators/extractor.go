@@ -2,9 +2,10 @@ package validators
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"reflect"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 func ExtractValidators(rfVal reflect.Value) ([][]Validator, error) {

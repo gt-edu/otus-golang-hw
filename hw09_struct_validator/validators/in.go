@@ -2,9 +2,10 @@ package validators
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"reflect"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 type InValidator struct {
@@ -14,7 +15,7 @@ type InValidator struct {
 
 func (vld *InValidator) ValidateValue(v interface{}) error {
 	valid := true
-	switch reflect.ValueOf(v).Kind() {
+	switch reflect.ValueOf(v).Kind() { //nolint:exhaustive
 	case reflect.Int:
 		if _, found := vld.inMap[fmt.Sprintf("%d", v)]; !found {
 			valid = false
@@ -25,7 +26,6 @@ func (vld *InValidator) ValidateValue(v interface{}) error {
 		}
 	default:
 		return ErrInvalidType
-
 	}
 	if !valid {
 		return errors.Errorf(

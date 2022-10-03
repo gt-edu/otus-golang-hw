@@ -23,7 +23,7 @@ type (
 		Role   UserRole `validate:"in:admin,stuff"`
 		Phones []string `validate:"len:11"`
 
-		meta json.RawMessage //nolint:structcheck,unused
+		meta json.RawMessage //nolint:unused
 	}
 
 	App struct {
