@@ -25,7 +25,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 		}
 
 		var user User
-		if err := user.UnmarshalJSON([]byte(line)); err != nil {
+		if err := user.UnmarshalJSON(line); err != nil {
 			return nil, err
 		}
 
