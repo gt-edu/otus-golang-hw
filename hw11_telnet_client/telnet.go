@@ -57,28 +57,29 @@ func (t *TelnetClientImpl) Close() error {
 
 func (t *TelnetClientImpl) Send() error {
 	p := make([]byte, 10000)
-	n, err := t.in.Read(p)
-	if err != nil {
-		return err
+	for {
+		n, err := t.in.Read(p)
+		if err != nil {
+			return err
+		}
+		_, err = t.conn.Write(p[:n])
+		if err != nil {
+			return err
+		}
 	}
-	_, err = t.conn.Write(p[:n])
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (t *TelnetClientImpl) Receive() error {
 	p := make([]byte, 10000)
-	n, err := t.conn.Read(p)
-	if err != nil {
-		return err
-	}
+	for {
+		n, err := t.conn.Read(p)
+		if err != nil {
+			return err
+		}
 
-	_, err = t.out.Write(p[:n])
-	if err != nil {
-		return err
+		_, err = t.out.Write(p[:n])
+		if err != nil {
+			return err
+		}
 	}
-
-	return nil
 }
