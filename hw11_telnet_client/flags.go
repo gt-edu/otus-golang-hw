@@ -25,7 +25,7 @@ func ParseTelnetClientFlags(args []string) (string, time.Duration, error, *flag.
 	flags.SetOutput(&buf)
 
 	var timeout time.Duration
-	flags.DurationVar(&timeout, "timeout", time.Duration(0), "Specifies connection timeout")
+	flags.DurationVar(&timeout, "timeout", time.Duration(10)*time.Second, "Specifies connection timeout")
 
 	err := flags.Parse(args[1:])
 	if err != nil {
