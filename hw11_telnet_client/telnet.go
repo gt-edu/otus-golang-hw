@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"io"
 	"net"
 	"time"
@@ -12,10 +12,10 @@ type TelnetClient interface {
 	io.Closer
 	Send() error
 	Receive() error
+	ExitedWithEOF() bool
 }
 
 func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
-
 	return &TelnetClientImpl{
 		address: address,
 		timeout: timeout,
@@ -32,11 +32,12 @@ type TelnetClientImpl struct {
 	in      io.ReadCloser
 	out     io.Writer
 
-	// Нужно ли здесь указатель
+	// Q: Нужно ли здесь указатель?
 	conn net.Conn
 
-	doneCh chan struct{}
-	closed bool
+	doneCh        chan struct{}
+	closed        bool
+	exitedWithEOF bool
 }
 
 func (t *TelnetClientImpl) Connect() error {
@@ -61,6 +62,7 @@ func (t *TelnetClientImpl) Close() error {
 	if err != nil {
 		return err
 	}
+	PrintfToStderr("Connection closed.\n")
 
 	if t.conn != nil {
 		err := t.conn.Close()
@@ -82,6 +84,10 @@ func (t *TelnetClientImpl) Send() error {
 		default:
 			n, err := t.in.Read(p)
 			if err != nil {
+				if errors.Is(err, io.EOF) {
+					t.exitedWithEOF = true
+					return nil
+				}
 				return err
 			}
 
@@ -100,11 +106,14 @@ func (t *TelnetClientImpl) Receive() error {
 	for {
 		select {
 		case <-t.doneCh:
-			fmt.Println("Gracefully exit when receiving")
 			return nil
 		default:
 			n, err := t.conn.Read(p)
 			if err != nil {
+				if errors.Is(err, io.EOF) {
+					t.exitedWithEOF = true
+					return nil
+				}
 				return err
 			}
 
@@ -114,4 +123,8 @@ func (t *TelnetClientImpl) Receive() error {
 			}
 		}
 	}
+}
+
+func (t *TelnetClientImpl) ExitedWithEOF() bool {
+	return t.exitedWithEOF
 }

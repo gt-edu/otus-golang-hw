@@ -5,14 +5,20 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"net"
 	"os"
 	"os/signal"
 )
 
 func main() {
-	address, t, err, flags := ParseTelnetClientFlags(os.Args)
+	exitCode := StartTelnetClient()
+
+	os.Exit(exitCode)
+}
+
+func StartTelnetClient() int {
+	exitCode := 0
+	address, t, flags, err := ParseTelnetClientFlags(os.Args)
 	if err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			PrintHelpAndExit(nil, flags)
@@ -27,12 +33,18 @@ func main() {
 		os.Exit(1)
 	}
 	PrintfToStderr("Connected to %s.\n", address)
+	defer func() {
+		err := client.Close()
+		if err != nil {
+			PrintfToStderr("Error when final close: %s\n", err.Error())
+		}
+	}()
 
 	go func() {
 		err := client.Receive()
-		if err != nil {
+		if err != nil || client.ExitedWithEOF() {
 			switch {
-			case errors.Is(err, io.EOF):
+			case client.ExitedWithEOF():
 				PrintfToStderr("...Connection was closed by peer\n")
 			case errors.Is(err, net.ErrClosed):
 				PrintfToStderr("...Connection was closed on interruption\n")
@@ -49,8 +61,8 @@ func main() {
 	}()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer stop()
 	go func() {
+		defer stop()
 		<-ctx.Done()
 		err := client.Close()
 		if err != nil {
@@ -60,22 +72,18 @@ func main() {
 	}()
 
 	err = client.Send()
-	if err != nil {
+	if err != nil || client.ExitedWithEOF() {
 		switch {
-		case errors.Is(err, io.EOF):
+		case client.ExitedWithEOF():
 			PrintfToStderr("...EOF\n")
 		default:
 			PrintfToStderr("Error when send: %s\n", err.Error())
-			os.Exit(1)
+			exitCode = 1
 		}
 	}
+	return exitCode
 }
 
 func PrintfToStderr(msg string, args ...interface{}) {
-	if len(args) > 0 {
-		_, _ = fmt.Fprintf(os.Stderr, msg, args)
-	} else {
-		_, _ = fmt.Fprintf(os.Stderr, msg)
-	}
-
+	_, _ = fmt.Fprintf(os.Stderr, msg, args...)
 }

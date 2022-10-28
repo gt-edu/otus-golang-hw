@@ -18,8 +18,7 @@ var (
 	ErrParseError                 = errors.New("parse error")
 )
 
-func ParseTelnetClientFlags(args []string) (string, time.Duration, error, *flag.FlagSet) {
-
+func ParseTelnetClientFlags(args []string) (string, time.Duration, *flag.FlagSet, error) {
 	flags := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	var buf bytes.Buffer
 	flags.SetOutput(&buf)
@@ -29,25 +28,25 @@ func ParseTelnetClientFlags(args []string) (string, time.Duration, error, *flag.
 
 	err := flags.Parse(args[1:])
 	if err != nil {
-		if err == flag.ErrHelp {
-			return "", 0, err, flags
-		} else {
-			return "", 0, errors.Wrap(ErrParseError, err.Error()), flags
+		if errors.Is(err, flag.ErrHelp) {
+			return "", 0, flags, err
 		}
+
+		return "", 0, flags, errors.Wrap(ErrParseError, err.Error())
 	}
 
 	tail := flags.Args()
 	if len(tail) < 2 {
-		return "", timeout, ErrHostAndPortMustBeSpecified, flags
+		return "", timeout, flags, ErrHostAndPortMustBeSpecified
 	}
 
 	port := tail[1]
 	_, err = strconv.Atoi(port)
 	if err != nil {
-		return "", 0, errors.Wrap(ErrInvalidPort, err.Error()), flags
+		return "", 0, flags, errors.Wrap(ErrInvalidPort, err.Error())
 	}
 
-	return net.JoinHostPort(tail[0], port), timeout, nil, flags
+	return net.JoinHostPort(tail[0], port), timeout, flags, nil
 }
 
 func PrintHelpAndExit(err error, flags *flag.FlagSet) {
