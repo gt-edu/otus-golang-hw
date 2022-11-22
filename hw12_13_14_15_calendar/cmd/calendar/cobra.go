@@ -9,8 +9,11 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "calendar",
 	Short: "calendar - a backend for the Calendar app",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.PrintErr()
 		cmd.Help()
+
+		return nil
 	},
 }
 
@@ -20,8 +23,8 @@ var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Starts Calendar server",
 	Args:  cobra.ExactArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
-		startServer(configFile)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return startServer(configFile)
 	},
 }
 
@@ -29,8 +32,9 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Show version",
 	Args:  cobra.ExactArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		printVersion()
+		return nil
 	},
 }
 
@@ -39,7 +43,7 @@ func Execute() {
 	startCmd.Flags().StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
 	rootCmd.AddCommand(startCmd)
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
+		_, _ = fmt.Fprintf(os.Stderr, "There was an error while executing CLI '%s'", err)
 		os.Exit(1)
 	}
 }

@@ -6,15 +6,18 @@ import (
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/memory"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
 )
 
-func startServer(configFile string) {
+func startServer(configFile string) error {
 
-	config := NewConfig()
+	config, err := NewConfig(configFile)
+	if err != nil {
+		return err
+	}
+
 	logg := logger.New(config.Logger.Level)
 
 	storage := memorystorage.New()
@@ -42,6 +45,8 @@ func startServer(configFile string) {
 	if err := server.Start(ctx); err != nil {
 		logg.Error("failed to start http server: " + err.Error())
 		cancel()
-		os.Exit(1) //nolint:gocritic
+		return err
 	}
+
+	return nil
 }
