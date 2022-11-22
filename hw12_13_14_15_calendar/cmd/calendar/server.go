@@ -2,17 +2,17 @@ package main
 
 import (
 	"context"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/memory"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 func startServer(configFile string) error {
-
 	config, err := NewConfig(configFile)
 	if err != nil {
 		return err
