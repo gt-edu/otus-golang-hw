@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -18,7 +20,16 @@ func startServer(configFile string) error {
 		return err
 	}
 
-	logg := logger.New(config.Logger.Level)
+	logg, err := logger.New(config.Logger.Level, config.Logger.Preset)
+	if err != nil {
+		return err
+	}
+	defer func(logg *logger.Logger) {
+		err := logg.Sync()
+		if err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "Error during logger syncing: %v", err)
+		}
+	}(logg)
 
 	storage := memorystorage.New()
 	calendar := app.New(logg, storage)

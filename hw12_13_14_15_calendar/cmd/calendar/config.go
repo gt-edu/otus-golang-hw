@@ -16,8 +16,8 @@ type Config struct {
 }
 
 type LoggerConf struct {
-	Level string
-	// TODO
+	Level  string
+	Preset string
 }
 
 func NewConfig(configFile string) (*Config, error) {
