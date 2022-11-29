@@ -1,14 +1,15 @@
 package memorystorage
 
 import (
-	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	"sync"
+
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 type Storage struct {
 	mu        sync.RWMutex
 	eventsMap map[int]*storage.Event
-	lastId    int
+	lastID    int
 }
 
 func New() *Storage {
@@ -21,8 +22,8 @@ func (s *Storage) Add(e storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.lastId = s.lastId + 1
-	e.ID = s.lastId
+	s.lastID++
+	e.ID = s.lastID
 	s.eventsMap[e.ID] = &e
 
 	return nil
@@ -46,11 +47,12 @@ func (s *Storage) Get(id int) (*storage.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	if e, ok := s.eventsMap[id]; ok {
-		return e, nil
-	} else {
+	e, ok := s.eventsMap[id]
+	if !ok {
 		return nil, storage.ErrEventNotFound
 	}
+
+	return e, nil
 }
 
 func (s *Storage) GetAll() ([]*storage.Event, error) {

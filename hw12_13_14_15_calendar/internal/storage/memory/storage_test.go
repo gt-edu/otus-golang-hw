@@ -1,9 +1,10 @@
 package memorystorage
 
 import (
+	"testing"
+
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestStorage(t *testing.T) {
