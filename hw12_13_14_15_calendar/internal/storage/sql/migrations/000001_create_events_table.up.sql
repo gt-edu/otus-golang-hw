@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS events(
+    id serial PRIMARY KEY,
+    title VARCHAR (255) UNIQUE NOT NULL
+);
