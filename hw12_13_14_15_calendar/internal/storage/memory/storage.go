@@ -18,7 +18,7 @@ func New() *Storage {
 	}
 }
 
-func (s *Storage) Add(e storage.Event) error {
+func (s *Storage) Add(e storage.Event) (int, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -26,7 +26,7 @@ func (s *Storage) Add(e storage.Event) error {
 	e.ID = s.lastID
 	s.eventsMap[e.ID] = &e
 
-	return nil
+	return e.ID, nil
 }
 
 func (s *Storage) Update(e storage.Event) error {
