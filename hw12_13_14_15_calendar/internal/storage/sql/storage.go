@@ -61,13 +61,26 @@ func (s *Storage) Add(e storage.Event) (int, error) {
 }
 
 func (s *Storage) Update(e storage.Event) error {
-	//TODO implement me
-	panic("implement me")
+	query := `update events set title = $1 where id = $2`
+	_, err := s.db.ExecContext(s.ctx, query, e.Title, e.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *Storage) Get(id int) (*storage.Event, error) {
-	//TODO implement me
-	panic("implement me")
+	query := `select title from events where id = $1`
+	row := s.db.QueryRowContext(s.ctx, query, id)
+	var title string
+	err := row.Scan(&title)
+	if err == sql.ErrNoRows {
+		return nil, storage.ErrEventNotFound
+	} else if err != nil {
+		return nil, err
+	}
+	return &storage.Event{ID: id, Title: title}, nil
 }
 
 func (s *Storage) GetAll() ([]*storage.Event, error) {
@@ -102,6 +115,11 @@ func (s *Storage) GetAll() ([]*storage.Event, error) {
 }
 
 func (s *Storage) Delete(id int) error {
-	//TODO implement me
-	panic("implement me")
+	query := `delete from events where id = $1`
+	_, err := s.db.ExecContext(s.ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
