@@ -18,7 +18,7 @@ func TestSqlStorage(t *testing.T) {
 	EventsCommonTest(t, s)
 }
 
-func setupTestdbAndRunMigrations(t *testing.T) *sqlstorage.Storage {
+func setupTestdbAndRunMigrations(t *testing.T) *sqlstorage.SqlStorage {
 	_, dbURI := SetupTestcontainersDatabase(t)
 	eventStorage := sqlstorage.New()
 	eventStorage.DataSourceName = dbURI

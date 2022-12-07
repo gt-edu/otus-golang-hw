@@ -6,19 +6,19 @@ import (
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
-type Storage struct {
+type MemoryStorage struct {
 	mu        sync.RWMutex
 	eventsMap map[int]*storage.Event
 	lastID    int
 }
 
-func New() *Storage {
-	return &Storage{
+func New() *MemoryStorage {
+	return &MemoryStorage{
 		eventsMap: make(map[int]*storage.Event),
 	}
 }
 
-func (s *Storage) Add(e storage.Event) (int, error) {
+func (s *MemoryStorage) Add(e storage.Event) (int, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -29,7 +29,7 @@ func (s *Storage) Add(e storage.Event) (int, error) {
 	return e.ID, nil
 }
 
-func (s *Storage) Update(e storage.Event) error {
+func (s *MemoryStorage) Update(e storage.Event) error {
 	_, err := s.Get(e.ID)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (s *Storage) Update(e storage.Event) error {
 	return nil
 }
 
-func (s *Storage) Get(id int) (*storage.Event, error) {
+func (s *MemoryStorage) Get(id int) (*storage.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -55,7 +55,7 @@ func (s *Storage) Get(id int) (*storage.Event, error) {
 	return e, nil
 }
 
-func (s *Storage) GetAll() ([]*storage.Event, error) {
+func (s *MemoryStorage) GetAll() ([]*storage.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -68,7 +68,7 @@ func (s *Storage) GetAll() ([]*storage.Event, error) {
 	return eventsList, nil
 }
 
-func (s *Storage) Delete(id int) error {
+func (s *MemoryStorage) Delete(id int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

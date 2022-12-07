@@ -13,7 +13,7 @@ import (
 //go:embed migrations
 var migrations embed.FS
 
-func RunMigrationsUp(t *testing.T, eventStorage *Storage) error {
+func RunMigrationsUp(t *testing.T, eventStorage *SqlStorage) error {
 	err := eventStorage.Connect(context.Background())
 	if err != nil {
 		return err

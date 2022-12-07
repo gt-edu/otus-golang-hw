@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type Storage struct {
+type SqlStorage struct {
 	DataSourceName string
 
 	db  *sql.DB
@@ -16,11 +16,11 @@ type Storage struct {
 	log *logger.Logger
 }
 
-func New() *Storage {
-	return &Storage{}
+func New() *SqlStorage {
+	return &SqlStorage{}
 }
 
-func (s *Storage) Connect(ctx context.Context) error {
+func (s *SqlStorage) Connect(ctx context.Context) error {
 	db, err := sql.Open("pgx", s.DataSourceName)
 	if err != nil {
 		return err
@@ -40,7 +40,7 @@ func (s *Storage) Connect(ctx context.Context) error {
 	return err
 }
 
-func (s *Storage) Close(ctx context.Context) error {
+func (s *SqlStorage) Close(ctx context.Context) error {
 	if s.db != nil {
 		return s.db.Close()
 	}
@@ -49,7 +49,7 @@ func (s *Storage) Close(ctx context.Context) error {
 	return nil
 }
 
-func (s *Storage) Add(e storage.Event) (int, error) {
+func (s *SqlStorage) Add(e storage.Event) (int, error) {
 	query := `insert into events(title, start_date, end_date) values($1, $2, $3) returning id`
 	var eventId int
 	err := s.db.QueryRowContext(s.ctx, query, e.Title, "2019-12-31", "2019-12-31").Scan(&eventId)
@@ -60,7 +60,7 @@ func (s *Storage) Add(e storage.Event) (int, error) {
 	return eventId, nil
 }
 
-func (s *Storage) Update(e storage.Event) error {
+func (s *SqlStorage) Update(e storage.Event) error {
 	query := `update events set title = $1 where id = $2`
 	_, err := s.db.ExecContext(s.ctx, query, e.Title, e.ID)
 	if err != nil {
@@ -70,7 +70,7 @@ func (s *Storage) Update(e storage.Event) error {
 	return nil
 }
 
-func (s *Storage) Get(id int) (*storage.Event, error) {
+func (s *SqlStorage) Get(id int) (*storage.Event, error) {
 	query := `select title from events where id = $1`
 	row := s.db.QueryRowContext(s.ctx, query, id)
 	var title string
@@ -83,7 +83,7 @@ func (s *Storage) Get(id int) (*storage.Event, error) {
 	return &storage.Event{ID: id, Title: title}, nil
 }
 
-func (s *Storage) GetAll() ([]*storage.Event, error) {
+func (s *SqlStorage) GetAll() ([]*storage.Event, error) {
 	query := `select id, title from events`
 	rows, err := s.db.QueryContext(s.ctx, query)
 	if err != nil {
@@ -114,7 +114,7 @@ func (s *Storage) GetAll() ([]*storage.Event, error) {
 	return events, nil
 }
 
-func (s *Storage) Delete(id int) error {
+func (s *SqlStorage) Delete(id int) error {
 	query := `delete from events where id = $1`
 	_, err := s.db.ExecContext(s.ctx, query, id)
 	if err != nil {
