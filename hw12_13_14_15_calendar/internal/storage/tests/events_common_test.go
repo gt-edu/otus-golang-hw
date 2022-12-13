@@ -1,23 +1,32 @@
 package tests
 
 import (
+	"testing"
+
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 	t.Helper()
 
 	testEvents := []storage.Event{
-		{Title: "Event title 1", OwnerId: 2, Descr: "Description 1", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
-			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1"},
-		{Title: "Event title 2", OwnerId: 2, Descr: "Description 2", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
-			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1"},
-		{Title: "Event title 3", OwnerId: 2, Descr: "Description 3", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
-			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1"},
-		{Title: "Event title 4", OwnerId: 2, Descr: "Description 4", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
-			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1"},
+		{
+			Title: "Event title 1", OwnerId: 2, Descr: "Description 1", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
+			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1",
+		},
+		{
+			Title: "Event title 2", OwnerId: 2, Descr: "Description 2", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
+			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1",
+		},
+		{
+			Title: "Event title 3", OwnerId: 2, Descr: "Description 3", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
+			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1",
+		},
+		{
+			Title: "Event title 4", OwnerId: 2, Descr: "Description 4", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
+			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1",
+		},
 	}
 
 	t.Run("add events", func(t *testing.T) {
@@ -56,8 +65,10 @@ func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 		require.Nil(t, nilEvent)
 		require.ErrorIs(t, err, storage.ErrEventNotFound)
 
-		newEvent := storage.Event{Title: "Event title 5", OwnerId: 2, Descr: "Description 5", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
-			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1"}
+		newEvent := storage.Event{
+			Title: "Event title 5", OwnerId: 2, Descr: "Description 5", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
+			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1",
+		}
 		newEventId, err := s.Add(newEvent)
 		require.NoError(t, err)
 		require.Equal(t, 5, newEventId)
@@ -90,7 +101,6 @@ func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 		err = s.Update(storage.Event{ID: 6, Title: "Event title 66"})
 		require.ErrorIs(t, err, storage.ErrEventNotFound)
 	})
-
 }
 
 func compareSavedEventWithExpected(t *testing.T, expectedEventId int, expectedEvent storage.Event, savedEvent *storage.Event) {

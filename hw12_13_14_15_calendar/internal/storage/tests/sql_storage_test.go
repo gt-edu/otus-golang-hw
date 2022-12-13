@@ -3,12 +3,13 @@ package tests
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/sql"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"testing"
 )
 
 func TestSqlStorage(t *testing.T) {

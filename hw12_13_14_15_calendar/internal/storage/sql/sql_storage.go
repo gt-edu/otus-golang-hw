@@ -2,10 +2,11 @@ package sqlstorage
 
 import (
 	"context"
+	"time"
+
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	"github.com/jmoiron/sqlx"
-	"time"
 )
 
 type SqlStorage struct {
@@ -22,7 +23,6 @@ func New() *SqlStorage {
 
 func (s *SqlStorage) Connect(ctx context.Context) error {
 	db, err := sqlx.Open("pgx", s.DataSourceName) // *sqlx.DB
-	//db, err := sql.Open("pgx", s.DataSourceName)
 	if err != nil {
 		return err
 	}

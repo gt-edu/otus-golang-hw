@@ -3,11 +3,12 @@ package sqlstorage
 import (
 	"context"
 	"embed"
+	"log"
+	"testing"
+
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/pgx"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
-	"log"
-	"testing"
 )
 
 //go:embed migrations
