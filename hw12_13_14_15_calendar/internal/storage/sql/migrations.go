@@ -19,7 +19,7 @@ func RunMigrationsUp(t *testing.T, eventStorage *SqlStorage) error {
 		return err
 	}
 
-	driver, err := pgx.WithInstance(eventStorage.db, &pgx.Config{})
+	driver, err := pgx.WithInstance(eventStorage.db.DB, &pgx.Config{})
 	if err != nil {
 		return err
 	}

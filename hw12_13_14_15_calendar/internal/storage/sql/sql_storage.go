@@ -2,16 +2,16 @@ package sqlstorage
 
 import (
 	"context"
-	"database/sql"
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
+	"github.com/jmoiron/sqlx"
 	"time"
 )
 
 type SqlStorage struct {
 	DataSourceName string
 
-	db  *sql.DB
+	db  *sqlx.DB
 	ctx context.Context
 	log *logger.Logger
 }
@@ -21,7 +21,8 @@ func New() *SqlStorage {
 }
 
 func (s *SqlStorage) Connect(ctx context.Context) error {
-	db, err := sql.Open("pgx", s.DataSourceName)
+	db, err := sqlx.Open("pgx", s.DataSourceName) // *sqlx.DB
+	//db, err := sql.Open("pgx", s.DataSourceName)
 	if err != nil {
 		return err
 	}
@@ -50,10 +51,22 @@ func (s *SqlStorage) Close(ctx context.Context) error {
 }
 
 func (s *SqlStorage) Add(e storage.Event) (int, error) {
-	query := `insert into events(title, start_date, end_date) values($1, $2, $3) returning id`
+	query := `insert into events(owner_id, title, descr, start_date, start_time, end_date, end_time, notification_period) 
+                          values(:owner_id, :title, :descr, :start_date, :start_time, :end_date, :end_time, :notification_period) returning id`
+
 	var eventId int
-	err := s.db.QueryRowContext(s.ctx, query, e.Title, "2019-12-31", "2019-12-31").Scan(&eventId)
+	rows, err := s.db.NamedQueryContext(s.ctx, query, e)
 	if err != nil {
+		return 0, err
+	}
+
+	if rows.Next() {
+		err := rows.Scan(&eventId)
+		if err != nil {
+			return 0, err
+		}
+	}
+	if err := rows.Err(); err != nil {
 		return 0, err
 	}
 
@@ -61,8 +74,22 @@ func (s *SqlStorage) Add(e storage.Event) (int, error) {
 }
 
 func (s *SqlStorage) Update(e storage.Event) error {
-	query := `update events set title = $1 where id = $2`
-	_, err := s.db.ExecContext(s.ctx, query, e.Title, e.ID)
+	_, err := s.Get(e.ID)
+	if err != nil {
+		return err
+	}
+
+	query := `update events set 
+                  owner_id = :owner_id, 
+                  title = :title, 
+                  descr = :descr, 
+                  start_date = :start_date, 
+                  start_time = :start_time, 
+                  end_date = :end_date, 
+                  end_time = :end_time,
+                  notification_period = :notification_period 
+              where id = :id`
+	_, err = s.db.NamedExecContext(s.ctx, query, e)
 	if err != nil {
 		return err
 	}
@@ -71,26 +98,41 @@ func (s *SqlStorage) Update(e storage.Event) error {
 }
 
 func (s *SqlStorage) Get(id int) (*storage.Event, error) {
-	query := `select title from events where id = $1`
-	row := s.db.QueryRowContext(s.ctx, query, id)
-	var title string
-	err := row.Scan(&title)
-	if err == sql.ErrNoRows {
-		return nil, storage.ErrEventNotFound
-	} else if err != nil {
+	query := `select * from events where id = :id`
+	rows, err := s.db.NamedQueryContext(s.ctx, query, map[string]interface{}{"id": id})
+	if err != nil {
 		return nil, err
 	}
-	return &storage.Event{ID: id, Title: title}, nil
+	defer func(rows *sqlx.Rows) {
+		err := rows.Close()
+		if err != nil {
+			s.log.Error("error during closing row set" + err.Error())
+		}
+	}(rows)
+
+	if rows.Next() {
+		var event storage.Event
+		err := rows.StructScan(&event)
+		if err != nil {
+			return nil, err
+		}
+		return &event, nil
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return nil, storage.ErrEventNotFound
 }
 
 func (s *SqlStorage) GetAll() ([]*storage.Event, error) {
-	query := `select id, title from events`
-	rows, err := s.db.QueryContext(s.ctx, query)
+	query := `select * from events`
+	rows, err := s.db.NamedQueryContext(s.ctx, query, map[string]interface{}{})
 	if err != nil {
 		return nil, err
 	}
 	// ошибка при выполнении запроса
-	defer func(rows *sql.Rows) {
+	defer func(rows *sqlx.Rows) {
 		err := rows.Close()
 		if err != nil {
 			s.log.Error("error during closing row set" + err.Error())
@@ -99,13 +141,12 @@ func (s *SqlStorage) GetAll() ([]*storage.Event, error) {
 
 	var events []*storage.Event
 	for rows.Next() {
-		var id int
-		var title string
-		if err := rows.Scan(&id, &title); err != nil {
+		var event storage.Event
+		if err := rows.StructScan(&event); err != nil {
 			return nil, err
 		}
 
-		events = append(events, &storage.Event{ID: id, Title: title})
+		events = append(events, &event)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

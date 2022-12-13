@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/golang-migrate/migrate/v4 v4.15.2
+	github.com/jmoiron/sqlx v1.3.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.14.0
