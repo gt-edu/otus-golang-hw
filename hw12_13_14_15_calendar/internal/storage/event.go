@@ -3,7 +3,7 @@ package storage
 type Event struct {
 	ID                 int
 	Title              string
-	OwnerId            int `db:"owner_id"`
+	OwnerID            int `db:"owner_id"`
 	Descr              string
 	StartDate          string `db:"start_date"`
 	StartTime          string `db:"start_time"`

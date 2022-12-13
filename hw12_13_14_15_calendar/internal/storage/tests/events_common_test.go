@@ -12,19 +12,19 @@ func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 
 	testEvents := []storage.Event{
 		{
-			Title: "Event title 1", OwnerId: 2, Descr: "Description 1", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
+			Title: "Event title 1", OwnerID: 2, Descr: "Description 1", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
 			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1",
 		},
 		{
-			Title: "Event title 2", OwnerId: 2, Descr: "Description 2", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
+			Title: "Event title 2", OwnerID: 2, Descr: "Description 2", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
 			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1",
 		},
 		{
-			Title: "Event title 3", OwnerId: 2, Descr: "Description 3", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
+			Title: "Event title 3", OwnerID: 2, Descr: "Description 3", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
 			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1",
 		},
 		{
-			Title: "Event title 4", OwnerId: 2, Descr: "Description 4", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
+			Title: "Event title 4", OwnerID: 2, Descr: "Description 4", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
 			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1",
 		},
 	}
@@ -50,8 +50,8 @@ func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 			savedEvent, err := s.Get(ind + 1)
 			require.NoError(t, err)
 			require.NotNil(t, savedEvent)
-			expectedEventId := ind + 1
-			compareSavedEventWithExpected(t, expectedEventId, testEvent, savedEvent)
+			expectedEventID := ind + 1
+			compareSavedEventWithExpected(t, expectedEventID, testEvent, savedEvent)
 		}
 
 		err := s.Delete(1)
@@ -66,12 +66,12 @@ func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 		require.ErrorIs(t, err, storage.ErrEventNotFound)
 
 		newEvent := storage.Event{
-			Title: "Event title 5", OwnerId: 2, Descr: "Description 5", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
+			Title: "Event title 5", OwnerID: 2, Descr: "Description 5", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
 			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1",
 		}
-		newEventId, err := s.Add(newEvent)
+		newEventID, err := s.Add(newEvent)
 		require.NoError(t, err)
-		require.Equal(t, 5, newEventId)
+		require.Equal(t, 5, newEventID)
 
 		allEvents, err = s.GetAll()
 		require.NoError(t, err)
@@ -83,7 +83,7 @@ func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 		compareSavedEventWithExpected(t, 5, newEvent, event)
 
 		event.Title = "Event title 55"
-		event.OwnerId = 2
+		event.OwnerID = 2
 		event.Descr = "Description 55"
 		event.StartDate = "2023-12-06T00:00:00Z"
 		event.StartTime = "17:55:00"
@@ -103,10 +103,13 @@ func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 	})
 }
 
-func compareSavedEventWithExpected(t *testing.T, expectedEventId int, expectedEvent storage.Event, savedEvent *storage.Event) {
-	require.Equal(t, expectedEventId, savedEvent.ID)
+func compareSavedEventWithExpected(t *testing.T, expectedEventID int, expectedEvent storage.Event,
+	savedEvent *storage.Event,
+) {
+	t.Helper()
+	require.Equal(t, expectedEventID, savedEvent.ID)
 	require.Equal(t, expectedEvent.Title, savedEvent.Title)
-	require.Equal(t, expectedEvent.OwnerId, savedEvent.OwnerId)
+	require.Equal(t, expectedEvent.OwnerID, savedEvent.OwnerID)
 	require.Equal(t, expectedEvent.Descr, savedEvent.Descr)
 	require.Equal(t, expectedEvent.StartDate, savedEvent.StartDate)
 	require.Equal(t, expectedEvent.StartTime, savedEvent.StartTime)

@@ -19,12 +19,14 @@ func TestSqlStorage(t *testing.T) {
 	EventsCommonTest(t, s)
 }
 
-func setupTestdbAndRunMigrations(t *testing.T) *sqlstorage.SqlStorage {
+func setupTestdbAndRunMigrations(t *testing.T) *sqlstorage.SQLStorage {
+	t.Helper()
+
 	_, dbURI := SetupTestcontainersDatabase(t)
 	eventStorage := sqlstorage.New()
 	eventStorage.DataSourceName = dbURI
 
-	err := sqlstorage.RunMigrationsUp(t, eventStorage)
+	err := sqlstorage.RunMigrationsUp(eventStorage)
 	require.NoError(t, err)
 
 	return eventStorage

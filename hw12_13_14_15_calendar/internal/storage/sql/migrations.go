@@ -4,7 +4,6 @@ import (
 	"context"
 	"embed"
 	"log"
-	"testing"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/pgx"
@@ -14,7 +13,7 @@ import (
 //go:embed migrations
 var migrations embed.FS
 
-func RunMigrationsUp(t *testing.T, eventStorage *SqlStorage) error {
+func RunMigrationsUp(eventStorage *SQLStorage) error {
 	err := eventStorage.Connect(context.Background())
 	if err != nil {
 		return err
