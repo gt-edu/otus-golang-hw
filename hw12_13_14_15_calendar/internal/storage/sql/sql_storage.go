@@ -16,7 +16,7 @@ type SQLStorage struct {
 
 	db  *sqlx.DB
 	ctx context.Context
-	log *logger.Logger
+	log *logger.ZapLogger
 }
 
 func New(conf config.StorageConfig) *SQLStorage {

@@ -26,7 +26,7 @@ func startServer(configFile string) error {
 	if err != nil {
 		return err
 	}
-	defer func(logg *logger.Logger) {
+	defer func(logg *logger.ZapLogger) {
 		err := logg.Sync()
 		if err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "Error during logger syncing: %v", err)

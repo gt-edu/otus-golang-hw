@@ -6,11 +6,19 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-type Logger struct {
+type Logger interface {
+	Sync() error
+	Debug(msg string)
+	Info(msg string)
+	Warn(msg string)
+	Error(msg string)
+}
+
+type ZapLogger struct {
 	zapLogger *zap.Logger
 }
 
-func New(level, preset string) (*Logger, error) {
+func New(level, preset string) (*ZapLogger, error) {
 	var config zap.Config
 	var err error
 
@@ -32,7 +40,7 @@ func New(level, preset string) (*Logger, error) {
 
 	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	log := &Logger{}
+	log := &ZapLogger{}
 	log.zapLogger, err = config.Build()
 	if err != nil {
 		return nil, err
@@ -41,15 +49,23 @@ func New(level, preset string) (*Logger, error) {
 	return log, nil
 }
 
-func (l Logger) Sync() error {
+func (l ZapLogger) Sync() error {
 	return l.zapLogger.Sync()
 }
 
-func (l Logger) Info(msg string) {
+func (l ZapLogger) Debug(msg string) {
+	l.zapLogger.Debug(msg)
+}
+
+func (l ZapLogger) Info(msg string) {
 	l.zapLogger.Info(msg)
 }
 
-func (l Logger) Error(msg string) {
+func (l ZapLogger) Warn(msg string) {
+	l.zapLogger.Warn(msg)
+}
+
+func (l ZapLogger) Error(msg string) {
 	l.zapLogger.Error(msg)
 }
 

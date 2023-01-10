@@ -8,11 +8,11 @@ import (
 )
 
 type App struct {
-	logger  *logger.Logger
+	logger  *logger.ZapLogger
 	storage storage.EventStorage
 }
 
-func New(logger *logger.Logger, storage storage.EventStorage) *App {
+func New(logger *logger.ZapLogger, storage storage.EventStorage) *App {
 	return &App{
 		logger:  logger,
 		storage: storage,
