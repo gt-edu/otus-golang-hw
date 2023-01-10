@@ -8,12 +8,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
-	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
-
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 func startServer(configFile string) error {
