@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/dto"
 	"testing"
 
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
@@ -10,7 +11,7 @@ import (
 func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 	t.Helper()
 
-	testEvents := []storage.Event{
+	testEvents := []dto.Event{
 		{
 			Title: "Event title 1", OwnerID: 2, Descr: "Description 1", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
 			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1",
@@ -63,9 +64,9 @@ func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 
 		nilEvent, err := s.Get(1)
 		require.Nil(t, nilEvent)
-		require.ErrorIs(t, err, storage.ErrEventNotFound)
+		require.ErrorIs(t, err, dto.ErrEventNotFound)
 
-		newEvent := storage.Event{
+		newEvent := dto.Event{
 			Title: "Event title 5", OwnerID: 2, Descr: "Description 5", StartDate: "2022-12-06T00:00:00Z", StartTime: "17:00:00",
 			EndDate: "2022-12-06T00:00:00Z", EndTime: "18:00:00", NotificationPeriod: "1",
 		}
@@ -98,13 +99,13 @@ func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 		require.NotNil(t, event2)
 		compareSavedEventWithExpected(t, 5, *event, event2)
 
-		err = s.Update(storage.Event{ID: 6, Title: "Event title 66"})
-		require.ErrorIs(t, err, storage.ErrEventNotFound)
+		err = s.Update(dto.Event{ID: 6, Title: "Event title 66"})
+		require.ErrorIs(t, err, dto.ErrEventNotFound)
 	})
 }
 
-func compareSavedEventWithExpected(t *testing.T, expectedEventID int, expectedEvent storage.Event,
-	savedEvent *storage.Event,
+func compareSavedEventWithExpected(t *testing.T, expectedEventID int, expectedEvent dto.Event,
+	savedEvent *dto.Event,
 ) {
 	t.Helper()
 	require.Equal(t, expectedEventID, savedEvent.ID)

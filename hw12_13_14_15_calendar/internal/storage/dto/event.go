@@ -1,4 +1,4 @@
-package storage
+package dto
 
 type Event struct {
 	ID                 int

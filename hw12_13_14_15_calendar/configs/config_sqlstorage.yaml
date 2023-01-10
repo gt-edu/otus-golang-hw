@@ -1,0 +1,10 @@
+logger:
+  level: "debug"
+  preset: "development"
+storage:
+  type: "sql"
+  hostname: localhost
+  dbname: calendardb
+  port: 5432
+  username: postgres
+  password: changeme

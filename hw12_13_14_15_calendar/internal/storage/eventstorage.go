@@ -1,13 +1,32 @@
 package storage
 
-import "github.com/pkg/errors"
-
-var ErrEventNotFound = errors.New("event not found")
+import (
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/dto"
+	memorystorage "github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/sql"
+)
 
 type EventStorage interface {
-	Add(e Event) (int, error)
-	Update(e Event) error
-	Get(id int) (*Event, error)
-	GetAll() ([]*Event, error)
+	Add(e dto.Event) (int, error)
+	Update(e dto.Event) error
+	Get(id int) (*dto.Event, error)
+	GetAll() ([]*dto.Event, error)
 	Delete(id int) error
+}
+
+func NewEventStorage(appConfig *config.Config) (EventStorage, error) {
+	switch appConfig.Storage.Type {
+	case "memory":
+		return memorystorage.New(), nil
+	case "sql":
+		eventStorage := sqlstorage.New(appConfig.Storage)
+		err := sqlstorage.RunMigrationsUp(eventStorage)
+		if err != nil {
+			return nil, err
+		}
+		return eventStorage, nil
+	default:
+		return nil, dto.ErrStorageTypeIsNotCorrect
+	}
 }

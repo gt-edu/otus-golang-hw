@@ -2,7 +2,7 @@ package tests
 
 import (
 	"context"
-	"fmt"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"testing"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -22,9 +22,8 @@ func TestSqlStorage(t *testing.T) {
 func setupTestdbAndRunMigrations(t *testing.T) *sqlstorage.SQLStorage {
 	t.Helper()
 
-	_, dbURI := SetupTestcontainersDatabase(t)
-	eventStorage := sqlstorage.New()
-	eventStorage.DataSourceName = dbURI
+	_, storageConf := SetupTestcontainersDatabase(t)
+	eventStorage := sqlstorage.New(storageConf)
 
 	err := sqlstorage.RunMigrationsUp(eventStorage)
 	require.NoError(t, err)
@@ -32,8 +31,15 @@ func setupTestdbAndRunMigrations(t *testing.T) *sqlstorage.SQLStorage {
 	return eventStorage
 }
 
-func SetupTestcontainersDatabase(t *testing.T) (*testcontainers.Container, string) {
+func SetupTestcontainersDatabase(t *testing.T) (*testcontainers.Container, config.StorageConfig) {
 	t.Helper()
+
+	storageConf := config.StorageConfig{
+		Type:     "sql",
+		Dbname:   "testdb",
+		Username: "postgres",
+		Password: "postgres",
+	}
 
 	// 1. Create PostgreSQL container request
 	containerReq := testcontainers.ContainerRequest{
@@ -41,9 +47,9 @@ func SetupTestcontainersDatabase(t *testing.T) (*testcontainers.Container, strin
 		ExposedPorts: []string{"5432/tcp"},
 		WaitingFor:   wait.ForListeningPort("5432/tcp"),
 		Env: map[string]string{
-			"POSTGRES_DB":       "testdb",
-			"POSTGRES_PASSWORD": "postgres",
-			"POSTGRES_USER":     "postgres",
+			"POSTGRES_DB":       storageConf.Dbname,
+			"POSTGRES_PASSWORD": storageConf.Password,
+			"POSTGRES_USER":     storageConf.Username,
 		},
 		Labels: map[string]string{
 			"app-calendar": "postgresql",
@@ -65,8 +71,8 @@ func SetupTestcontainersDatabase(t *testing.T) (*testcontainers.Container, strin
 	port, err := dbContainer.MappedPort(context.Background(), "5432")
 	require.NoError(t, err)
 
-	// 3.2 Create db connection string and connect
-	dbURI := fmt.Sprintf("postgres://postgres:postgres@%v:%v/testdb", host, port.Port())
+	storageConf.Port = port.Port()
+	storageConf.Hostname = host
 
-	return &dbContainer, dbURI
+	return &dbContainer, storageConf
 }

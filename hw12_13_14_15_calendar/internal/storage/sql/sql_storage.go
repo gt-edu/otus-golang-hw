@@ -2,10 +2,12 @@ package sqlstorage
 
 import (
 	"context"
+	"fmt"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/dto"
 	"time"
 
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -17,8 +19,11 @@ type SQLStorage struct {
 	log *logger.Logger
 }
 
-func New() *SQLStorage {
-	return &SQLStorage{}
+func New(conf config.StorageConfig) *SQLStorage {
+	dbURI := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", conf.Username, conf.Password, conf.Hostname, conf.Port, conf.Dbname)
+	return &SQLStorage{
+		DataSourceName: dbURI,
+	}
 }
 
 func (s *SQLStorage) Connect(ctx context.Context) error {
@@ -50,7 +55,7 @@ func (s *SQLStorage) Close(ctx context.Context) error {
 	return nil
 }
 
-func (s *SQLStorage) Add(e storage.Event) (int, error) {
+func (s *SQLStorage) Add(e dto.Event) (int, error) {
 	query := `insert into events(owner_id, title, descr, start_date, start_time, end_date, end_time, 
                                  notification_period) 
                           values(:owner_id, :title, :descr, :start_date, :start_time, :end_date, :end_time, 
@@ -75,7 +80,7 @@ func (s *SQLStorage) Add(e storage.Event) (int, error) {
 	return evventID, nil
 }
 
-func (s *SQLStorage) Update(e storage.Event) error {
+func (s *SQLStorage) Update(e dto.Event) error {
 	_, err := s.Get(e.ID)
 	if err != nil {
 		return err
@@ -99,7 +104,7 @@ func (s *SQLStorage) Update(e storage.Event) error {
 	return nil
 }
 
-func (s *SQLStorage) Get(id int) (*storage.Event, error) {
+func (s *SQLStorage) Get(id int) (*dto.Event, error) {
 	query := `select * from events where id = :id`
 	rows, err := s.db.NamedQueryContext(s.ctx, query, map[string]interface{}{"id": id})
 	if err != nil {
@@ -113,7 +118,7 @@ func (s *SQLStorage) Get(id int) (*storage.Event, error) {
 	}(rows)
 
 	if rows.Next() {
-		var event storage.Event
+		var event dto.Event
 		err := rows.StructScan(&event)
 		if err != nil {
 			return nil, err
@@ -124,10 +129,10 @@ func (s *SQLStorage) Get(id int) (*storage.Event, error) {
 		return nil, err
 	}
 
-	return nil, storage.ErrEventNotFound
+	return nil, dto.ErrEventNotFound
 }
 
-func (s *SQLStorage) GetAll() ([]*storage.Event, error) {
+func (s *SQLStorage) GetAll() ([]*dto.Event, error) {
 	query := `select * from events`
 	rows, err := s.db.NamedQueryContext(s.ctx, query, map[string]interface{}{})
 	if err != nil {
@@ -141,9 +146,9 @@ func (s *SQLStorage) GetAll() ([]*storage.Event, error) {
 		}
 	}(rows)
 
-	var events []*storage.Event
+	var events []*dto.Event
 	for rows.Next() {
-		var event storage.Event
+		var event dto.Event
 		if err := rows.StructScan(&event); err != nil {
 			return nil, err
 		}

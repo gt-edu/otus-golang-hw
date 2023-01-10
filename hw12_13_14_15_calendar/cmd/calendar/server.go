@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,16 +13,15 @@ import (
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/memory"
 )
 
 func startServer(configFile string) error {
-	config, err := NewConfig(configFile)
+	appConfig, err := config.NewConfig(configFile)
 	if err != nil {
 		return err
 	}
 
-	logg, err := logger.New(config.Logger.Level, config.Logger.Preset)
+	logg, err := logger.New(appConfig.Logger.Level, appConfig.Logger.Preset)
 	if err != nil {
 		return err
 	}
@@ -31,8 +32,9 @@ func startServer(configFile string) error {
 		}
 	}(logg)
 
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
+	appStorage, err := storage.NewEventStorage(appConfig)
+
+	calendar := app.New(logg, appStorage)
 
 	server := internalhttp.NewServer(logg, calendar)
 

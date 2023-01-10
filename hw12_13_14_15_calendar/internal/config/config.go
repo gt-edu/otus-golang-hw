@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"fmt"
@@ -11,13 +11,22 @@ import (
 // Организация конфига в main принуждает нас сужать API компонентов, использовать
 // при их конструировании только необходимые параметры, а также уменьшает вероятность циклической зависимости.
 type Config struct {
-	Logger LoggerConf
-	// TODO
+	Logger  LoggerConfig
+	Storage StorageConfig
 }
 
-type LoggerConf struct {
+type LoggerConfig struct {
 	Level  string
 	Preset string
+}
+
+type StorageConfig struct {
+	Type     string
+	Hostname string
+	Dbname   string
+	Port     string
+	Username string
+	Password string
 }
 
 func NewConfig(configFile string) (*Config, error) {
