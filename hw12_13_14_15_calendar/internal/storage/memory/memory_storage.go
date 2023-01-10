@@ -1,8 +1,9 @@
 package memorystorage
 
 import (
-	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/dto"
 	"sync"
+
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/dto"
 )
 
 type MemoryStorage struct {

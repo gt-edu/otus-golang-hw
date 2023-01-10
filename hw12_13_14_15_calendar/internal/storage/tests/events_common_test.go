@@ -1,10 +1,10 @@
 package tests
 
 import (
-	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/dto"
 	"testing"
 
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/dto"
 	"github.com/stretchr/testify/require"
 )
 

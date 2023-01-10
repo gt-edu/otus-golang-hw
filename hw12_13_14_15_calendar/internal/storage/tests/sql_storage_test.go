@@ -2,10 +2,10 @@ package tests
 
 import (
 	"context"
-	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"testing"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/sql"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"

@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
-	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
@@ -33,6 +34,9 @@ func startServer(configFile string) error {
 	}(logg)
 
 	appStorage, err := storage.NewEventStorage(appConfig)
+	if err != nil {
+		return err
+	}
 
 	calendar := app.New(logg, appStorage)
 

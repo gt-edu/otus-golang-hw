@@ -3,11 +3,11 @@ package sqlstorage
 import (
 	"context"
 	"fmt"
-	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
-	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/dto"
 	"time"
 
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/dto"
 	"github.com/jmoiron/sqlx"
 )
 
