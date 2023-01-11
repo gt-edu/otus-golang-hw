@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
 	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
@@ -66,9 +67,9 @@ func startServer(configFile string) error {
 			logg.Error("failed to start http server: " + err.Error())
 			cancel()
 			return err
-		} else {
-			logg.Info("Server was stopped.")
 		}
+
+		logg.Info("Server was stopped.")
 	}
 
 	return nil

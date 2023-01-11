@@ -1,16 +1,17 @@
 package internalhttp
 
 import (
-	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
-	"go.uber.org/zap"
 	"net/http"
 	"time"
+
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
+	"go.uber.org/zap"
 )
 
 func loggingMiddleware(next http.Handler, logger logger.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		lrw := NewLoggingResponseWriter(w)
+		lrw := newLoggingResponseWriter(w)
 		next.ServeHTTP(lrw, r)
 		logger.Info("Request handled:",
 			zap.String("ip", r.RemoteAddr),
@@ -37,7 +38,7 @@ type loggingResponseWriter struct {
 	statusCode int
 }
 
-func NewLoggingResponseWriter(w http.ResponseWriter) *loggingResponseWriter {
+func newLoggingResponseWriter(w http.ResponseWriter) *loggingResponseWriter {
 	return &loggingResponseWriter{w, http.StatusOK}
 }
 
