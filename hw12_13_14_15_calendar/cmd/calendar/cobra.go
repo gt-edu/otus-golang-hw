@@ -41,7 +41,7 @@ var versionCmd = &cobra.Command{
 
 func Execute() {
 	rootCmd.AddCommand(versionCmd)
-	startCmd.Flags().StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	startCmd.Flags().StringVar(&configFile, "config", "/etc/calendar/config.yaml", "Path to configuration file")
 	rootCmd.AddCommand(startCmd)
 	if err := rootCmd.Execute(); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "There was an error while executing CLI '%s'", err)

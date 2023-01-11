@@ -3,8 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
+	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -25,9 +28,9 @@ func startServer(configFile string) error {
 	if err != nil {
 		return err
 	}
-	defer func(logg *logger.ZapLogger) {
+	defer func(logg logger.Logger) {
 		err := logg.Sync()
-		if err != nil {
+		if err != nil && !strings.Contains(err.Error(), "sync /dev/stderr: invalid argument") {
 			_, _ = fmt.Fprintf(os.Stderr, "Error during logger syncing: %v", err)
 		}
 	}(logg)
@@ -39,7 +42,7 @@ func startServer(configFile string) error {
 
 	calendar := app.New(logg, appStorage)
 
-	server := internalhttp.NewServer(logg, calendar)
+	server := internalhttp.NewServer(logg, calendar, appConfig)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
@@ -58,10 +61,14 @@ func startServer(configFile string) error {
 
 	logg.Info("Calendar server is running with config " + configFile + " ...")
 
-	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
-		cancel()
-		return err
+	if err := server.Start(); err != nil {
+		if !errors.Is(err, http.ErrServerClosed) {
+			logg.Error("failed to start http server: " + err.Error())
+			cancel()
+			return err
+		} else {
+			logg.Info("Server was stopped.")
+		}
 	}
 
 	return nil
