@@ -50,5 +50,3 @@ func NewConfig(configFile string) (*Config, error) {
 
 	return conf, nil
 }
-
-// TODO

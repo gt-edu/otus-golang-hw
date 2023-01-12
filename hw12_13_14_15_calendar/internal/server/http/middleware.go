@@ -22,14 +22,6 @@ func loggingMiddleware(next http.Handler, logger logger.Logger) http.Handler {
 			zap.Int("status", lrw.statusCode),
 			zap.String("latency", time.Since(start).String()),
 		)
-		/*
-			* IP клиента;
-			//* дата и время запроса;
-			//* метод, path и версия HTTP;
-			* код ответа;
-			//* latency (время обработки запроса, посчитанное, например, с помощью middleware);
-			* user agent, если есть.
-		*/
 	})
 }
 
