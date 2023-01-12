@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	"testing"
 
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -13,10 +14,16 @@ import (
 )
 
 func TestSqlStorage(t *testing.T) {
-	s := setupTestdbAndRunMigrations(t)
-	require.NotNil(t, s)
+	factory := func() storage.EventStorage {
+		t.Helper()
+		s := setupTestdbAndRunMigrations(t)
+		require.NotNil(t, s)
+		return s
+	}
 
-	EventsCommonTest(t, s)
+	EventsCommonTest(t, factory)
+
+	EventsCommonConcurrencyTest(t, factory)
 }
 
 func setupTestdbAndRunMigrations(t *testing.T) *sqlstorage.SQLStorage {

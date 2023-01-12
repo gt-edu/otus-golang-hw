@@ -8,7 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func EventsCommonTest(t *testing.T, s storage.EventStorage) {
+func EventsCommonTest(t *testing.T, storageFactory func() storage.EventStorage) {
+	s := storageFactory()
 	t.Helper()
 
 	testEvents := []dto.Event{
@@ -30,7 +31,7 @@ func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 		},
 	}
 
-	t.Run("add events", func(t *testing.T) {
+	t.Run("CRUD events", func(t *testing.T) {
 		for ind, tEvent := range testEvents {
 			id, err := s.Add(tEvent)
 			require.NoError(t, err)
@@ -44,9 +45,7 @@ func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 		for _, savedEvent := range allEvents {
 			compareSavedEventWithExpected(t, savedEvent.ID, testEvents[savedEvent.ID-1], savedEvent)
 		}
-	})
 
-	t.Run("other tests", func(t *testing.T) {
 		for ind, testEvent := range testEvents {
 			savedEvent, err := s.Get(ind + 1)
 			require.NoError(t, err)
@@ -55,10 +54,10 @@ func EventsCommonTest(t *testing.T, s storage.EventStorage) {
 			compareSavedEventWithExpected(t, expectedEventID, testEvent, savedEvent)
 		}
 
-		err := s.Delete(1)
+		err = s.Delete(1)
 		require.NoError(t, err)
 
-		allEvents, err := s.GetAll()
+		allEvents, err = s.GetAll()
 		require.NoError(t, err)
 		require.Len(t, allEvents, len(testEvents)-1)
 
