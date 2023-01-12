@@ -1,13 +1,13 @@
 package tests
 
 import (
-	"github.com/stretchr/testify/require"
 	"strconv"
 	"sync"
 	"testing"
 
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	"github.com/gt-edu/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/dto"
+	"github.com/stretchr/testify/require"
 )
 
 func EventsCommonConcurrencyTest(t *testing.T, storageFactory func() storage.EventStorage) {
@@ -27,14 +27,14 @@ func EventsCommonConcurrencyTest(t *testing.T, storageFactory func() storage.Eve
 		for i := 0; i < n; i++ {
 			wg.Add(1)
 
-			go func(i int) {
+			go func() {
 				defer wg.Done()
-				eventId, err := s.Add(testEvents[0])
+				eventID, err := s.Add(testEvents[0])
 				require.NoError(t, err)
 
 				chDone := make(chan struct{})
-				go func(eventId int) {
-					changedEvent, err := s.Get(eventId)
+				go func(eventID int) {
+					changedEvent, err := s.Get(eventID)
 					require.NoError(t, err)
 					changedEvent.Title = "Event title M " + strconv.Itoa(changedEvent.ID)
 
@@ -42,9 +42,9 @@ func EventsCommonConcurrencyTest(t *testing.T, storageFactory func() storage.Eve
 					require.NoError(t, err)
 
 					chDone <- struct{}{}
-				}(eventId)
+				}(eventID)
 				<-chDone
-			}(i)
+			}()
 		}
 		wg.Wait()
 
@@ -64,19 +64,19 @@ func EventsCommonConcurrencyTest(t *testing.T, storageFactory func() storage.Eve
 		for i := 0; i < n; i++ {
 			wg.Add(1)
 
-			go func(i int) {
+			go func() {
 				defer wg.Done()
-				eventId, err := s.Add(testEvents[0])
+				eventID, err := s.Add(testEvents[0])
 				require.NoError(t, err)
 
 				chDone := make(chan struct{})
-				go func(eventId int) {
-					err := s.Delete(eventId)
+				go func(eventID int) {
+					err := s.Delete(eventID)
 					require.NoError(t, err)
 					chDone <- struct{}{}
-				}(eventId)
+				}(eventID)
 				<-chDone
-			}(i)
+			}()
 		}
 		wg.Wait()
 
@@ -84,5 +84,4 @@ func EventsCommonConcurrencyTest(t *testing.T, storageFactory func() storage.Eve
 		require.NoError(t, err)
 		require.Equal(t, 0, len(allEvents))
 	})
-
 }

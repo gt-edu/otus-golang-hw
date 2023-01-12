@@ -9,8 +9,9 @@ import (
 )
 
 func EventsCommonTest(t *testing.T, storageFactory func() storage.EventStorage) {
-	s := storageFactory()
 	t.Helper()
+
+	s := storageFactory()
 
 	testEvents := []dto.Event{
 		{
