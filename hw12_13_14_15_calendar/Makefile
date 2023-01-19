@@ -10,6 +10,15 @@ build:
 run: build
 	$(BIN) start --config ./configs/config.yaml
 
+migrate: build
+	$(BIN) migrate --config ./configs/config_sqlstorage.yaml
+
+compose-pgsql-up:
+	docker compose -p pgsql-calendar -f ./containers/pgsql-docker-compose.yaml up -d
+
+compose-pgsql-down:
+	docker compose -p pgsql-calendar -f ./containers/pgsql-docker-compose.yaml down
+
 #build-img:
 #	docker build \
 #		--build-arg=LDFLAGS="$(LDFLAGS)" \
@@ -38,4 +47,4 @@ install-lint-deps:
 lint: install-lint-deps
 	golangci-lint run ./...
 
-.PHONY: build run build-img run-img version test test-slow lint
+.PHONY: build run build-img run-img version test test-slow lint migrate compose-pgsql-up compose-pgsql-down

@@ -1,9 +1,7 @@
 package config
 
 import (
-	"fmt"
-	"os"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
@@ -11,9 +9,10 @@ import (
 // Организация конфига в main принуждает нас сужать API компонентов, использовать
 // при их конструировании только необходимые параметры, а также уменьшает вероятность циклической зависимости.
 type Config struct {
-	Logger  LoggerConfig
-	Storage StorageConfig
-	HTTP    HTTPConfig
+	Logger         LoggerConfig
+	Storage        StorageConfig
+	MigrateOnStart bool
+	HTTP           HTTPConfig
 }
 
 type LoggerConfig struct {
@@ -38,14 +37,12 @@ type HTTPConfig struct {
 func NewConfig(configFile string) (*Config, error) {
 	viper.SetConfigFile(configFile)
 	if err := viper.ReadInConfig(); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "Error during reading configuration: %v", err)
-		return nil, err
+		return nil, errors.Wrap(err, "error during reading configuration")
 	}
 	conf := &Config{}
 	err := viper.Unmarshal(conf)
 	if err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "Error during unmarshalling configuration: %v", err)
-		return nil, err
+		return nil, errors.Wrap(err, "error during reading configuration")
 	}
 
 	return conf, nil

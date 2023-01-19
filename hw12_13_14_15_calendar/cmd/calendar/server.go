@@ -2,11 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -28,14 +25,9 @@ func startServer(configFile string) error {
 	if err != nil {
 		return err
 	}
-	defer func(logg logger.Logger) {
-		err := logg.Sync()
-		if err != nil && !strings.Contains(err.Error(), "sync /dev/stderr: invalid argument") {
-			_, _ = fmt.Fprintf(os.Stderr, "Error during logger syncing: %v", err)
-		}
-	}(logg)
+	defer logger.SafeLoggerSync(logg)
 
-	appStorage, err := storage.NewEventStorage(appConfig)
+	appStorage, err := storage.NewEventStorage(appConfig, logg)
 	if err != nil {
 		return err
 	}
@@ -63,9 +55,8 @@ func startServer(configFile string) error {
 
 	if err := server.Start(); err != nil {
 		if !errors.Is(err, http.ErrServerClosed) {
-			logg.Error("failed to start http server: " + err.Error())
 			cancel()
-			return err
+			return errors.Wrap(err, "failed to start http server")
 		}
 
 		logg.Info("Server was stopped.")

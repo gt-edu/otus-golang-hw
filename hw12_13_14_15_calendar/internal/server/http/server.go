@@ -45,7 +45,6 @@ func (s *Server) Start() error {
 		logger: s.logger,
 	}
 	addr := net.JoinHostPort(s.config.HTTP.Hostname, s.config.HTTP.Port)
-	// TODO: use logging middleware
 	s.httpServer = &http.Server{
 		Addr:         addr,
 		Handler:      loggingMiddleware(handler, s.logger),
@@ -53,18 +52,10 @@ func (s *Server) Start() error {
 		WriteTimeout: 10 * time.Second,
 	}
 	s.logger.Info(fmt.Sprintf("Starting a server on %s:%s", s.config.HTTP.Hostname, s.config.HTTP.Port))
-	err := s.httpServer.ListenAndServe()
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return s.httpServer.ListenAndServe()
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	err := s.httpServer.Shutdown(ctx)
-	if err != nil {
-		return err
-	}
-	return nil
+	return s.httpServer.Shutdown(ctx)
 }

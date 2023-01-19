@@ -36,12 +36,7 @@ func RunMigrationsUp(eventStorage *SQLStorage) error {
 
 	m.Log = &MigrateLog{}
 
-	err = m.Up()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return m.Up()
 }
 
 // MigrateLog represents the logger.
@@ -49,12 +44,8 @@ type MigrateLog struct{}
 
 // Printf prints out formatted string into a log.
 func (l *MigrateLog) Printf(format string, v ...interface{}) {
+	// TODO: Add zap logger
 	log.Printf(format, v...)
-}
-
-// Println prints out args into a log.
-func (l *MigrateLog) Println(args ...interface{}) {
-	log.Println(args...)
 }
 
 // Verbose shows if verbose print enabled.

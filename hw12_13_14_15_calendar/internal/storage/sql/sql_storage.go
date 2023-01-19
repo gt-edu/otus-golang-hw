@@ -81,7 +81,12 @@ func (s *SQLStorage) Add(e dto.Event) (int, error) {
 }
 
 func (s *SQLStorage) Update(e dto.Event) error {
-	_, err := s.Get(e.ID)
+	tx, err := s.db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	_, err = s.Get(e.ID)
 	if err != nil {
 		return err
 	}
@@ -101,7 +106,7 @@ func (s *SQLStorage) Update(e dto.Event) error {
 		return err
 	}
 
-	return nil
+	return tx.Commit()
 }
 
 func (s *SQLStorage) Get(id int) (*dto.Event, error) {
@@ -165,9 +170,5 @@ func (s *SQLStorage) GetAll() ([]*dto.Event, error) {
 func (s *SQLStorage) Delete(id int) error {
 	query := `delete from events where id = $1`
 	_, err := s.db.ExecContext(s.ctx, query, id)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

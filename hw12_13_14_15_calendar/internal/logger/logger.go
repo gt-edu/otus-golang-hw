@@ -1,9 +1,12 @@
 package logger
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"os"
+	"strings"
 )
 
 type Logger interface {
@@ -36,10 +39,14 @@ func New(level, preset string) (Logger, error) {
 
 	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	zapLogger, err := config.Build()
-	if err != nil {
-		return nil, err
-	}
+	return config.Build()
+}
 
-	return zapLogger, nil
+func SafeLoggerSync(logg Logger) {
+	func(logg Logger) {
+		err := logg.Sync()
+		if err != nil && !strings.Contains(err.Error(), "sync /dev/stderr: invalid argument") {
+			_, _ = fmt.Fprintf(os.Stderr, "Error during logger syncing: %v", err)
+		}
+	}(logg)
 }

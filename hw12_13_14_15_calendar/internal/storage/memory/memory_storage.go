@@ -30,13 +30,13 @@ func (s *MemoryStorage) Add(e dto.Event) (int, error) {
 }
 
 func (s *MemoryStorage) Update(e dto.Event) error {
-	_, err := s.Get(e.ID)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	_, err := s.getWithoutLock(e.ID)
 	if err != nil {
 		return err
 	}
-
-	s.mu.Lock()
-	defer s.mu.Unlock()
 
 	s.eventsMap[e.ID] = &e
 
@@ -47,11 +47,14 @@ func (s *MemoryStorage) Get(id int) (*dto.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
+	return s.getWithoutLock(id)
+}
+
+func (s *MemoryStorage) getWithoutLock(id int) (*dto.Event, error) {
 	e, ok := s.eventsMap[id]
 	if !ok {
 		return nil, dto.ErrEventNotFound
 	}
-
 	return e, nil
 }
 

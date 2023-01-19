@@ -29,6 +29,15 @@ var startCmd = &cobra.Command{
 	},
 }
 
+var migrateCmd = &cobra.Command{
+	Use:   "migrate",
+	Short: "Run migrations",
+	Args:  cobra.ExactArgs(0),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return migrateAppStorage(configFile)
+	},
+}
+
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Show version",
@@ -43,6 +52,9 @@ func Execute() {
 	rootCmd.AddCommand(versionCmd)
 	startCmd.Flags().StringVar(&configFile, "config", "/etc/calendar/config.yaml", "Path to configuration file")
 	rootCmd.AddCommand(startCmd)
+	migrateCmd.Flags().StringVar(&configFile, "config", "/etc/calendar/config.yaml", "Path to configuration file")
+	rootCmd.AddCommand(migrateCmd)
+
 	if err := rootCmd.Execute(); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "There was an error while executing CLI '%s'", err)
 		os.Exit(1)
