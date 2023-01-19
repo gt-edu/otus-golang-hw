@@ -23,14 +23,6 @@ func NewEventStorage(appConfig *config.Config, logg logger.Logger) (EventStorage
 		return memorystorage.New(), nil
 	case "sql":
 		eventStorage := sqlstorage.New(appConfig.Storage)
-		if appConfig.MigrateOnStart {
-			logg.Info("Start migrations")
-			err := sqlstorage.RunMigrationsUp(eventStorage)
-			if err != nil {
-				return nil, err
-			}
-		}
-
 		return eventStorage, nil
 	default:
 		return nil, dto.ErrStorageTypeIsNotCorrect
